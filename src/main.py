@@ -13,9 +13,9 @@ from waitress import serve
 import blueprints.permissions as permissions
 import blueprints.policies as policies
 import blueprints.resources as resources
-import utils.logger as logger
-from utils.configuration import load_configuration
-from utils.keycloak_client import KeycloakClient
+import identityutils.logger as logger
+from identityutils.configuration import load_configuration
+from identityutils.keycloak_client import KeycloakClient
 
 config_path = os.path.join(os.path.dirname(__file__), "../conf/config.ini")
 logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
@@ -29,7 +29,7 @@ def start_identity_api():
     api.register_blueprint(policies.construct_blueprint(keycloak_client=keycloak))
     api.register_blueprint(permissions.construct_blueprint(keycloak_client=keycloak))
 
-    swagger_spec_resources = json.load(open("../conf/swagger.json"))
+    swagger_spec_resources = json.load(open(os.path.join(os.path.dirname(__file__), "../conf/swagger.json")))
     swaggerui_resources_blueprint = get_swaggerui_blueprint(
         config.get('Swagger', 'swagger_url'),
         config.get('Swagger', 'swagger_api_url'),
@@ -43,16 +43,16 @@ def start_identity_api():
     if os.environ.get('FLASK_ENV') == 'production':
         serve(
             api,
-            host=config.get('API', 'host'),
-            port=int(config.get('API', 'port')
+            host=config.get('Server', 'host'),
+            port=int(config.get('Server', 'port')
                      )
         )
     else:
         api.run(
             debug=True,
             threaded=True,
-            host=config.get('API', 'host'),
-            port=int(config.get('API', 'port')
+            host=config.get('Server', 'host'),
+            port=int(config.get('Server', 'port')
                      )
         )
 
