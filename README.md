@@ -1,9 +1,3 @@
-<!--
-***
-*** To avoid retyping too much info. Do a search and replace for the following:
-*** um-service-template
--->
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** See the bottom of this document for the declaration of the reference variables
@@ -21,39 +15,38 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/EOEPCA/um-service-template">
+  <a href="https://github.com/EOEPCA/um-identity-api">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">um-service-template</h3>
+<h3 align="center">Identity API</h3>
 
   <p align="center">
-    Template for developing an EOEPCA Service
+    Flask application to enable a REST API server to manage Keycloak through Keycloak Admin API (https://www.keycloak.org/docs-api/21.0.1/rest-api/index.html) and Protection API (https://www.keycloak.org/docs/latest/authorization_services/index.html#_service_protection_api).
     <br />
-    <a href="https://github.com/EOEPCA/um-service-template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/EOEPCA/um-identity-api"><strong>Explore the docs »</strong></a>
     <br />
-    <a href="https://github.com/EOEPCA/um-service-template">View Demo</a>
+    <a href="https://github.com/EOEPCA/um-identity-api">View Demo</a>
     ·
-    <a href="https://github.com/EOEPCA/um-service-template/issues">Report Bug</a>
+    <a href="https://github.com/EOEPCA/um-identity-api/issues">Report Bug</a>
     ·
-    <a href="https://github.com/EOEPCA/um-service-template/issues">Request Feature</a>
+    <a href="https://github.com/EOEPCA/um-identity-api/issues">Request Feature</a>
   </p>
 </p>
 
 ## Table of Contents
 
-- [Steps to use this template](#steps-to-use-this-template)
 - [Table of Contents](#table-of-contents)
 - [About The Project](#about-the-project)
-  - [Built With](#built-with)
+    - [Built With](#built-with)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Testing](#testing)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Testing](#testing)
 - [Documentation](#documentation)
 - [Usage](#usage)
-  - [Running the template service](#running-the-template-service)
-  - [Upgrading Gradle Wrapper](#upgrading-gradle-wrapper)
+    - [Running the template service](#running-the-template-service)
+    - [Upgrading Gradle Wrapper](#upgrading-gradle-wrapper)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -64,7 +57,12 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+Flask application to enable a REST API server to manage Keycloak through Keycloak Admin API (https://www.keycloak.org/docs-api/21.0.1/rest-api/index.html) and Protection API (https://www.keycloak.org/docs/latest/authorization_services/index.html#_service_protection_api).
+
+Includes three main paths:
+- **Resources** - CRUD operations to manage resources
+- **Policies** - CRUD operations to manage policies
+- **Permissions** - CRUD operations to manage permissions
 
 ### Built With
 
@@ -97,18 +95,31 @@ vagrant ssh
 3. Clone the repo
 
 ```sh
-git clone https://github.com/EOEPCA/um-service-templategit
+git clone https://github.com/EOEPCA/um-identity-apigit
 ```
 
 4. Change local directory
 
 ```sh
-cd template-service
+cd um-identity-api
 ```
+
+5. Execute
+
+    5.1 Run with Python
+    ```sh
+    pip install -r requirements.txt
+    python src/main.py
+    ```
+    5.1 Run with Python
+    ```sh
+    docker build . -t identity-api:latest
+    docker run --rm -dp 5566:5566 --name identity-api identity-api:latest
+    ```
 
 ## Documentation
 
-The component documentation can be found at https://eoepca.github.io/um-service-template/.
+The component documentation can be found at https://eoepca.github.io/um-identity-api/.
 
 <!-- USAGE EXAMPLES -->
 
@@ -122,7 +133,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ## Roadmap
 
-See the [open issues](https://github.com/EOEPCA/um-service-template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/EOEPCA/um-identity-api/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 
@@ -146,21 +157,21 @@ Distributed under the Apache-2.0 License. See `LICENSE` for more information.
 
 [EOEPCA mailbox](eoepca.systemteam@telespazio.com)
 
-Project Link: [https://github.com/EOEPCA/um-service-template](https://github.com/EOEPCA/um-service-template)
+Project Link: [https://github.com/EOEPCA/um-identity-api](https://github.com/EOEPCA/um-identity-api)
 
 ## Acknowledgements
 
 - README.md is based on [this template](https://github.com/othneildrew/Best-README-Template) by [Othneil Drew](https://github.com/othneildrew).
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-service-templatesvg?style=flat-square
-[contributors-url]: https://github.com/EOEPCA/um-service-template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-service-templatesvg?style=flat-square
-[forks-url]: https://github.com/EOEPCA/um-service-template/network/members
-[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-service-templatesvg?style=flat-square
-[stars-url]: https://github.com/EOEPCA/um-service-template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-service-templatesvg?style=flat-square
-[issues-url]: https://github.com/EOEPCA/um-service-template/issues
-[license-shield]: https://img.shields.io/github/license/EOEPCA/um-service-templatesvg?style=flat-square
-[license-url]: https://github.com/EOEPCA/um-service-template/blob/master/LICENSE
-[build-shield]: https://www.travis-ci.com/EOEPCA/um-service-templatesvg?branch=master
+[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-identity-apisvg?style=flat-square
+[contributors-url]: https://github.com/EOEPCA/um-identity-api/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-identity-apisvg?style=flat-square
+[forks-url]: https://github.com/EOEPCA/um-identity-api/network/members
+[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-identity-apisvg?style=flat-square
+[stars-url]: https://github.com/EOEPCA/um-identity-api/stargazers
+[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-identity-apisvg?style=flat-square
+[issues-url]: https://github.com/EOEPCA/um-identity-api/issues
+[license-shield]: https://img.shields.io/github/license/EOEPCA/um-identity-apisvg?style=flat-square
+[license-url]: https://github.com/EOEPCA/um-identity-api/blob/master/LICENSE
+[build-shield]: https://www.travis-ci.com/EOEPCA/um-identity-apisvg?branch=master
