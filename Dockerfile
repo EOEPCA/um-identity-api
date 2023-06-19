@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:alpine/git
 RUN mkdir /app
 WORKDIR /app
 COPY conf src requirements.txt ./
