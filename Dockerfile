@@ -1,13 +1,8 @@
-# Base container
-FROM python:3.6
-
-# Add requirements, code
-COPY src/* /
+FROM python:alpine
+RUN mkdir /app
+WORKDIR /app
+COPY identity-api/conf identity-api/src identity-api/requirements.txt ./
+COPY utils/ ./src/utils/
 RUN pip install -r requirements.txt
-
-# Declare and expose service listening port
-# EXAMPLE PORT - PLEASE REPLACE WITH REAL ONES
-EXPOSE 8081/tcp
-
-# Declare entrypoint of that exposed service
-ENTRYPOINT ["python3", "./main.py"]
+EXPOSE 5566
+CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0"]
