@@ -2,3 +2,4 @@
 !src
 !conf
 !requirements.txt
+!.flaskenv
