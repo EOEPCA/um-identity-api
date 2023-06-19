@@ -113,7 +113,7 @@ cd um-identity-api
     ```
     5.1 Run with Python
     ```sh
-    docker build -f identity-api/Dockerfile . -t identity-api:latest
+    docker build . -t identity-api:latest
     docker run --rm -dp 5566:5566 --name identity-api identity-api:latest
     ```
 
