@@ -3,8 +3,8 @@ RUN apk add --no-cache git
 RUN mkdir /app
 WORKDIR /app
 COPY . .
-ENV FLASK_APP "src/app:create_app('development')"
-ENV FLASK_ENV development
+ENV FLASK_APP "src/app:create_app()"
+ENV FLASK_ENV develop
 ENV FLASK_DEBUG 1
 RUN pip install -r requirements.txt
 EXPOSE 5566
