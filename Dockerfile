@@ -1,4 +1,5 @@
-FROM python:alpine/git
+FROM python:alpine
+RUN apk add --no-cache git
 RUN mkdir /app
 WORKDIR /app
 COPY conf src requirements.txt ./
