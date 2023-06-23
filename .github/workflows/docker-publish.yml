@@ -68,8 +68,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=production,enable=${{ endsWith(GitHub.ref, ‘master’) }}
-            type=raw,value=development,enable=${{ endsWith(GitHub.ref, ‘develop’) }}
+            type=raw,value=production,enable=${{ endsWith(GitHub.ref, 'master') }}
+            type=raw,value=development,enable=${{ endsWith(GitHub.ref, 'develop') }}
             type=ref,event=tag
             flavor: |
             latest=false
