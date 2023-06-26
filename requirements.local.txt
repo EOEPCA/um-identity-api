@@ -11,4 +11,4 @@ configparser==5.3.0
 waitress==2.1.2
 python-dotenv==1.0.0
 retry==0.9.2
-identityutils @ git+https://github.com/eoepca/um-identity-service@develop
+file:../um-identity-service

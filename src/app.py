@@ -18,7 +18,11 @@ from identityutils.configuration import load_configuration
 from identityutils.keycloak_client import KeycloakClient
 from retry.api import retry_call
 
+logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
+logger = logging.getLogger("IDENTITY_API")
+
 mode = os.environ.get('FLASK_ENV')
+logger.info("mode " + str(mode))
 if mode == 'develop':
     config_file = "config.develop.ini"
 elif mode == 'demo':
@@ -28,9 +32,6 @@ elif mode == 'production':
 else:
     config_file = "config.ini"
 config_path = os.path.join(os.path.dirname(__file__), "../conf/", config_file)
-
-logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
-logger = logging.getLogger("IDENTITY_API")
 
 
 def identity_api(config, keycloak):
@@ -56,6 +57,7 @@ def identity_api(config, keycloak):
 
 def keycloak_client(config):
     logger.info("Starting Keycloak client...")
+    logger.info("config.get(Keycloak auth_server_url) " + str(config.get("Keycloak", "auth_server_url")))
     return KeycloakClient(server_url=config.get("Keycloak", "auth_server_url"),
                           realm=config.get("Keycloak", "realm"),
                           resource_server_endpoint=config.get("Keycloak", "resource_server_endpoint"),
