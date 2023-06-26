@@ -4,7 +4,6 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 ENV FLASK_APP "src/app:create_app()"
-ENV FLASK_ENV develop
 ENV FLASK_DEBUG 1
 RUN pip install -r requirements.txt
 EXPOSE 5566

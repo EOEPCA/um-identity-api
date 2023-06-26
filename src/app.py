@@ -20,7 +20,7 @@ from retry.api import retry_call
 
 mode = os.environ.get('FLASK_ENV')
 if mode == 'develop':
-    config_file = "config.ini"
+    config_file = "config.develop.ini"
 elif mode == 'demo':
     config_file = "config.demo.ini"
 elif mode == 'production':
