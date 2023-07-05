@@ -38,7 +38,8 @@ config_path = os.path.join(os.path.dirname(__file__), "../conf/", config_file)
 app = Flask(__name__)
 app.secret_key = ''.join(choice(ascii_lowercase) for _ in range(30))  # Random key
 app.config['HEALTHZ'] = {
-    "live": lambda: None
+    "live": lambda: None,
+    "ready": lambda: None
 }
 
 def register_endpoints(config, keycloak):
