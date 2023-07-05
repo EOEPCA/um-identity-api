@@ -106,15 +106,23 @@ cd um-identity-api
 
 5. Execute
 
-    5.1 Run with Python
+    5.1 Run locally with Python
     ```sh
     pip install -r requirements.txt
-    python src/main.py
+    python src/app.py
     ```
-    5.1 Run with Python
+    5.2 Run locally with Docker
     ```sh
-    docker build . -t identity-api:latest
-    docker run --rm -dp 5566:5566 --name identity-api identity-api:latest
+    docker build . -t --progress=plain um-identity-api:latest
+    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork um-identity-api:latest
+    ```
+    5.3 Run develop branch with Docker
+    ```sh
+    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork ghcr.io/eoepca/um-identity-api:develop
+    ```
+    5.4 Run master branch with Docker
+    ```sh
+    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork ghcr.io/eoepca/um-identity-api:production
     ```
 
 ## Documentation
