@@ -76,5 +76,5 @@ def create_app():
     config = load_configuration(config_path)
     keycloak = retry_call(keycloak_client, fargs=[config], exceptions=(KeycloakConnectionError, NewConnectionError),
                           delay=0.5, backoff=1.2, jitter=(1, 2), logger=logger)
-    register_endpoints(config, None)
+    register_endpoints(config, keycloak)
     return app
