@@ -35,22 +35,13 @@ else:
     config_file = "config.ini"
 config_path = os.path.join(os.path.dirname(__file__), "../conf/", config_file)
 
-keycloak = None
+app = Flask(__name__)
+app.secret_key = ''.join(choice(ascii_lowercase) for _ in range(30))  # Random key
+app.config['HEALTHZ'] = {
+    "live": lambda: None
+}
 
-
-def readiness():
-    if keycloak is None:
-        raise HealthError("Keycloak client is not ready")
-
-def identity_api(config):
-    app = Flask(__name__)
-    app.secret_key = ''.join(choice(ascii_lowercase) for _ in range(30))  # Random key
-
-    app.config['HEALTHZ'] = {
-        "live": lambda: None,
-        "ready": "src.app.readiness"
-    }
-
+def register_endpoints(config, keycloak):
     app.register_blueprint(resources.construct_blueprint(keycloak_client=keycloak))
     app.register_blueprint(policies.construct_blueprint(keycloak_client=keycloak))
     app.register_blueprint(permissions.construct_blueprint(keycloak_client=keycloak))
@@ -65,8 +56,6 @@ def identity_api(config):
         },
     )
     app.register_blueprint(swaggerui_resources_blueprint)
-
-    return app
 
 
 def keycloak_client(config):
@@ -84,6 +73,7 @@ def keycloak_client(config):
 def create_app():
     """Create a Flask application using the app factory pattern."""
     config = load_configuration(config_path)
-    # keycloak = retry_call(keycloak_client, fargs=[config], exceptions=(KeycloakConnectionError, NewConnectionError),
-    #                      delay=0.5, backoff=1.2, jitter=(1, 2), logger=logger)
-    return identity_api(config)
+    keycloak = retry_call(keycloak_client, fargs=[config], exceptions=(KeycloakConnectionError, NewConnectionError),
+                          delay=0.5, backoff=1.2, jitter=(1, 2), logger=logger)
+    register_endpoints(config, None)
+    return app
