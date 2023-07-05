@@ -1,5 +1,5 @@
 *
 !src
 !conf
-!requirements.txt
+!requirements.*
 !.flaskenv
