@@ -113,7 +113,7 @@ cd um-identity-api
     ```
     5.2 Run locally with Docker
     ```sh
-    docker build . -t --progress=plain um-identity-api:latest
+    docker build . --progress=plain -t um-identity-api:latest
     docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork um-identity-api:latest
     ```
     5.3 Run develop branch with Docker
