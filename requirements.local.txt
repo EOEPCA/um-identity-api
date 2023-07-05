@@ -11,4 +11,5 @@ configparser==5.3.0
 waitress==2.1.2
 python-dotenv==1.0.0
 retry==0.9.2
+flask-healthz==0.0.3
 file:../um-identity-service
