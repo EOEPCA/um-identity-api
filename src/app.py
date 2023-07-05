@@ -9,6 +9,7 @@ from string import ascii_lowercase
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 from keycloak import KeycloakConnectionError
+from urllib3.exceptions import NewConnectionError
 
 import blueprints.permissions as permissions
 import blueprints.policies as policies
@@ -18,9 +19,13 @@ from identityutils.configuration import load_configuration
 from identityutils.keycloak_client import KeycloakClient
 from retry.api import retry_call
 
+logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
+logger = logging.getLogger("IDENTITY_API")
+
 mode = os.environ.get('FLASK_ENV')
+logger.info("mode " + str(mode))
 if mode == 'develop':
-    config_file = "config.ini"
+    config_file = "config.develop.ini"
 elif mode == 'demo':
     config_file = "config.demo.ini"
 elif mode == 'production':
@@ -28,9 +33,6 @@ elif mode == 'production':
 else:
     config_file = "config.ini"
 config_path = os.path.join(os.path.dirname(__file__), "../conf/", config_file)
-
-logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
-logger = logging.getLogger("IDENTITY_API")
 
 
 def identity_api(config, keycloak):
@@ -55,9 +57,11 @@ def identity_api(config, keycloak):
 
 
 def keycloak_client(config):
-    logger.info("Starting Keycloak client...")
-    return KeycloakClient(server_url=config.get("Keycloak", "auth_server_url"),
-                          realm=config.get("Keycloak", "realm"),
+    auth_server_url = config.get("Keycloak", "auth_server_url")
+    realm = config.get("Keycloak", "realm")
+    logger.info("Starting Keycloak client for: " + str(auth_server_url) + ", realm: " + str(realm))
+    return KeycloakClient(server_url=auth_server_url,
+                          realm=realm,
                           resource_server_endpoint=config.get("Keycloak", "resource_server_endpoint"),
                           username=config.get("Keycloak", "admin_username"),
                           password=config.get("Keycloak", "admin_password")
@@ -67,6 +71,6 @@ def keycloak_client(config):
 def create_app():
     """Create a Flask application using the app factory pattern."""
     config = load_configuration(config_path)
-    keycloak = retry_call(keycloak_client, fargs=[config], exceptions=KeycloakConnectionError, delay=1, backoff=1.5,
-                          jitter=(1, 2), logger=logger)
+    keycloak = retry_call(keycloak_client, fargs=[config], exceptions=(KeycloakConnectionError, NewConnectionError),
+                          delay=0.5, backoff=1.2, jitter=(1, 2), logger=logger)
     return identity_api(config, keycloak)
