@@ -59,7 +59,7 @@ def identity_api(config, keycloak):
 def keycloak_client(config):
     auth_server_url = config.get("Keycloak", "auth_server_url")
     realm = config.get("Keycloak", "realm")
-    logger.info("Starting Keycloak client for: " + str(auth_server_url) + ", realm: " + str(realm))
+    logger.info("Starting Keycloak client for: " + str(auth_server_url) + "/" + str(realm))
     return KeycloakClient(server_url=auth_server_url,
                           realm=realm,
                           resource_server_endpoint=config.get("Keycloak", "resource_server_endpoint"),
