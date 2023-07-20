@@ -15,7 +15,7 @@ def construct_blueprint(keycloak_client):
         maximum = int(request.args.get('maximum', -1))
         return keycloak_client.get_policies(resource, name, scope, first, maximum)
     # --------------- GET -----------------
-    @policies.route("/client_policy/<client_id>", methods=["GET"])
+    @policies.route("/policies/<client_id>", methods=["GET"])
     def get_client_authz_policies(client_id: str):
         return keycloak_client.get_client_authz_policies(client_id)
 
@@ -117,13 +117,9 @@ def construct_blueprint(keycloak_client):
     
     # --------------- DELETE -----------------
 
-    @policies.route("/policies/<policy_id>", methods=["DELETE"])
+    @policies.route("/policy/<policy_id>", methods=["DELETE"])
     def delete_policy(policy_id: str):
         return keycloak_client.delete_policy(policy_id)
-    
-    @policies.route("/policies", methods=["DELETE"])
-    def delete_policies():
-        policies = request.get_json()
-        return keycloak_client.delete_policies(policies)
+
 
     return policies
