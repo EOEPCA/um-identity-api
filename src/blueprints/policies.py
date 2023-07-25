@@ -21,13 +21,13 @@ def construct_blueprint(keycloak_client):
 
     # --------------- POST -----------------
 
-    @policies.route("/client_policy", methods=["POST"])
+    @policies.route("/policies/client", methods=["POST"])
     def create_client_policy():
         policy = request.get_json()
         return keycloak_client.register_client_policy(policy)
     
     
-    @policies.route("/aggregated_policy", methods = ["POST"])
+    @policies.route("/policies/aggregated", methods = ["POST"])
     def create_aggregated_policy():
         payload = request.get_json()
         name = payload["name"]
@@ -35,19 +35,19 @@ def construct_blueprint(keycloak_client):
         strategy = payload["strategy"]
         return keycloak_client.register_aggregated_policy(name, policies, strategy)
         
-    @policies.route("/scope_policy", methods = ["POST"])
+    @policies.route("/policies/scope", methods = ["POST"])
     def create_client_scope_policy():
         policy = request.get_json()
         return keycloak_client.register_client_scope_policy(policy)
 
-    @policies.route("/group_policy", methods = ["POST"])
+    @policies.route("/policies/group", methods = ["POST"])
     def create_group_policy():
         name = request.get_json()["name"]
         groups = request.get_json()["groups"]
         groups_claim = request.get_json()["groups_claim"]
         return keycloak_client.register_group_policy(name, groups, groups_claim)
 
-    @policies.route("/regex_policy", methods = ["POST"])
+    @policies.route("/policies/regex", methods = ["POST"])
     def create_regex_policy():
         payload = request.get_json()
         name = payload["name"]
@@ -55,14 +55,14 @@ def construct_blueprint(keycloak_client):
         target_claim = payload["target_claim"]
         return keycloak_client.register_regex_policy(name, regex, target_claim)
     
-    @policies.route("/role_policy", methods = ["POST"])
+    @policies.route("/policies/role", methods = ["POST"])
     def create_role_policy():
         payload = request.get_json()
         name = payload["name"]
         roles = payload["roles"]
         return keycloak_client.register_role_policy(name, roles)
     
-    @policies.route("/time_policy", methods = ["POST"])
+    @policies.route("/policies/time", methods = ["POST"])
     def create_time_policy():
         # time can be one of:
         # "notAfter":"1970-01-01 00:00:00"
@@ -99,7 +99,7 @@ def construct_blueprint(keycloak_client):
                 time[key] = value
         return keycloak_client.register_time_policy(name, time)
     
-    @policies.route("/user_policy", methods = ["POST"])
+    @policies.route("/policies/user", methods = ["POST"])
     def create_user_policy():
         payload = request.get_json()
         name = payload["name"]
@@ -110,14 +110,14 @@ def construct_blueprint(keycloak_client):
     
     # --------------- UPDATE -----------------
     
-    @policies.route("/policy/<policy_id>", methods=["PUT"])
+    @policies.route("/policies/<policy_id>", methods=["PUT"])
     def update_policy(policy_id: str):
         policy = request.get_json()
         return keycloak_client.update_policy(policy_id, policy)
     
     # --------------- DELETE -----------------
 
-    @policies.route("/policy/<policy_id>", methods=["DELETE"])
+    @policies.route("/policies/<policy_id>", methods=["DELETE"])
     def delete_policy(policy_id: str):
         return keycloak_client.delete_policy(policy_id)
 
