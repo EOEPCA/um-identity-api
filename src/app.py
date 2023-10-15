@@ -60,12 +60,12 @@ def register_endpoints(config, keycloak):
 
 
 def keycloak_client(config):
+    logger.info("config: " + str(config))
     auth_server_url = config.get("Keycloak", "auth_server_url")
     realm = config.get("Keycloak", "realm")
     logger.info("Starting Keycloak client for: " + str(auth_server_url) + " realm: " + str(realm))
     return KeycloakClient(server_url=auth_server_url,
                           realm=realm,
-                          resource_server_endpoint=config.get("Keycloak", "resource_server_endpoint"),
                           username=config.get("Keycloak", "admin_username"),
                           password=config.get("Keycloak", "admin_password")
                           )
