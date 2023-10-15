@@ -18,7 +18,7 @@ import identityutils.logger as logger
 from identityutils.configuration import load_configuration
 from identityutils.keycloak_client import KeycloakClient
 from retry.api import retry_call
-from flask_healthz import healthz, HealthError
+from flask_healthz import healthz
 
 logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_API")
