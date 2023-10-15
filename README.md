@@ -108,21 +108,21 @@ cd um-identity-api
 
     5.1 Run locally with Python
     ```sh
-    pip install -r requirements.txt
-    python src/app.py
+    pip install -r requirements.local.txt
+    python -m "flask" run --host=0.0.0.0 --port=5566
     ```
     5.2 Run locally with Docker
     ```sh
-    docker build . --progress=plain -t um-identity-api:latest
-    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork um-identity-api:latest
+    docker build . --progress=plain -t um-identity-api:develop
+    docker run --rm -dp 5566:5566 --name um-identity-api um-identity-api:develop
     ```
     5.3 Run develop branch with Docker
     ```sh
-    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork ghcr.io/eoepca/um-identity-api:develop
+    docker run --rm -dp 5566:5566 --name um-identity-api ghcr.io/eoepca/um-identity-api:develop
     ```
     5.4 Run master branch with Docker
     ```sh
-    docker run --rm -dp 5566:5566 --name um-identity-api --network eoepcanetwork ghcr.io/eoepca/um-identity-api:production
+    docker run --rm -dp 5566:5566 --name um-identity-api ghcr.io/eoepca/um-identity-api:production
     ```
 
 ## Documentation
