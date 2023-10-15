@@ -23,17 +23,7 @@ from flask_healthz import healthz
 logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_API")
 
-mode = os.environ.get('FLASK_ENV')
-logger.info("Starting app in mode: " + str(mode))
-if mode == 'develop':
-    config_file = "config.develop.ini"
-elif mode == 'demo':
-    config_file = "config.demo.ini"
-elif mode == 'production':
-    config_file = "config.production.ini"
-else:
-    config_file = "config.ini"
-config_path = os.path.join(os.path.dirname(__file__), "../conf/", config_file)
+config_path = os.path.join(os.path.dirname(__file__), "../conf/config.ini")
 
 app = Flask(__name__)
 app.secret_key = ''.join(choice(ascii_lowercase) for _ in range(30))  # Random key
@@ -60,7 +50,6 @@ def register_endpoints(config, keycloak):
 
 
 def keycloak_client(config):
-    logger.info("config: " + str(config))
     auth_server_url = config.get("Keycloak", "auth_server_url")
     realm = config.get("Keycloak", "realm")
     logger.info("Starting Keycloak client for: " + str(auth_server_url) + " realm: " + str(realm))

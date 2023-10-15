@@ -95,7 +95,7 @@ vagrant ssh
 3. Clone the repo
 
 ```sh
-git clone https://github.com/EOEPCA/um-identity-apigit
+git clone https://github.com/EOEPCA/um-identity-api
 ```
 
 4. Change local directory
@@ -108,7 +108,7 @@ cd um-identity-api
 
     5.1 Run locally with Python
     ```sh
-    pip install -r requirements.local.txt
+    pip install -r requirements.txt
     python -m "flask" run --host=0.0.0.0 --port=5566
     ```
     5.2 Run locally with Docker
