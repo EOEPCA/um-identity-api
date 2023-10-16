@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+from keycloak import KeycloakDeleteError, KeycloakGetError, KeycloakPostError, KeycloakPutError
 
 
 def construct_blueprint(keycloak_client):
@@ -18,40 +19,82 @@ def construct_blueprint(keycloak_client):
     
     @policies.route("/<client_id>/policies", methods=["GET"])
     def get_client_authz_policies(client_id: str):
-        return keycloak_client.get_client_authz_policies(client_id)
+        try:
+            response = keycloak_client.get_client_authz_policies(client_id)
+            return response
+        except KeycloakGetError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
 
     # --------------- POST -----------------
 
     @policies.route("/<client_id>/policies/client", methods=["POST"])
     def create_client_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_client_policy(policy, client_id)
+        try:
+            response = keycloak_client.register_client_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
     
     
     @policies.route("/<client_id>/policies/aggregated", methods = ["POST"])
     def create_aggregated_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_aggregated_policy(policy, client_id)
+        try:
+            response = keycloak_client.register_aggregated_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
         
     @policies.route("/<client_id>/policies/scope", methods = ["POST"])
     def create_client_scope_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_client_scope_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_client_scope_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
 
     @policies.route("/<client_id>/policies/group", methods = ["POST"])
     def create_group_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_group_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_group_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
 
     @policies.route("/<client_id>/policies/regex", methods = ["POST"])
     def create_regex_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_regex_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_regex_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
     
     @policies.route("/<client_id>/policies/role", methods = ["POST"])
     def create_role_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_role_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_role_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
     
     @policies.route("/<client_id>/policies/time", methods = ["POST"])
     def create_time_policy(client_id: str):
@@ -83,12 +126,24 @@ def construct_blueprint(keycloak_client):
             "minuteEnd"
         ]
         policy = request.get_json()
-        return keycloak_client.register_time_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_time_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
     
     @policies.route("/<client_id>/policies/user", methods = ["POST"])
     def create_user_policy(client_id: str):
         policy = request.get_json()
-        return keycloak_client.register_user_policy(policy, client_id)
+        try:
+            response =  keycloak_client.register_user_policy(policy, client_id)
+            return response
+        except KeycloakPostError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
 
     
     
@@ -97,13 +152,27 @@ def construct_blueprint(keycloak_client):
     @policies.route("/<client_id>/policies/<policy_id>", methods=["PUT"])
     def update_policy(client_id: str, policy_id: str):
         policy = request.get_json()
-        return keycloak_client.update_policy(policy_id, policy, client_id)
+        try:
+            response =  keycloak_client.update_policy(policy_id, policy, client_id)
+            return response
+        except KeycloakPutError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
     
     # --------------- DELETE -----------------
 
     @policies.route("/<client_id>/policies/<policy_id>", methods=["DELETE"])
     def delete_policy(client_id: str ,policy_id: str):
-        return keycloak_client.delete_policy(policy_id, client_id)
-
+        try:
+            response =  keycloak_client.delete_policy(policy_id, client_id)
+            return response
+        except KeycloakDeleteError as error:
+            return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
+    
+    def custom_error(message, status_code): 
+        return message, status_code
 
     return policies
