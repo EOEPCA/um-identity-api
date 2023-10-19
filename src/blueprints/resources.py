@@ -40,7 +40,7 @@ def construct_blueprint(keycloak_client):
 
     @resources.route("/<client_id>/register-resources", methods=["POST"])
     def register_and_protect_resources(client_id: str ):
-        payload = [{
+        """payload = [{
             "resource":{
                 "name": "resource1",
                 "uris": ["/resource1/", "/resource2/"],
@@ -59,7 +59,7 @@ def construct_blueprint(keycloak_client):
                     },
             },
             "decisionStrategy": "UNANIMOUS"
-        }]
+        }]"""
         payload = request.get_json()
         policy_list = []
         
@@ -68,9 +68,8 @@ def construct_blueprint(keycloak_client):
             error = _validate_register_resource(item)
             if error:
                 return custom_error(error, 400)
-            else:
-                return item
-            """resource = item["resource"]
+            
+            resource = item["resource"]
             policies = item["permissions"]
             decisionStrategy = item['decisionStrategy'] if 'decisionStrategy' in item else "UNANIMOUS"
             type = 'urn:' + client_id + ':resources:default'
@@ -78,17 +77,22 @@ def construct_blueprint(keycloak_client):
 
             try:
                 # reconstruct resource object so it works when user sends unknown fields and to change field names to match what keycloak api expects
-                response_resource = keycloak_client.register_resource({
-                    "name": resource["name"]
-                    "uris": resource["uris"]
-                    "attributes": resource["attributes"]
-                    "resource_scopes": resource["scopes"]
-                    "ownerManagedAccess": resource["ownerManagedAccess"]
-                }, client_id)
+                response_resource = keycloak_client.register_resource( resource, client_id)
                 for policy_type in policies:
-                    policy = {"name": resource["name"].trim().replace(" ", "") + "" + policy_type + "_policy"}
-                    for _key in policies[policy_type]:
-                        policy[_key] = policies[policy_type][_key]
+                    policy = {"name": resource["name"].replace(" ", "") + "_" + policy_type + "_policy"}
+                    if isinstance(policies[policy_type], list):
+                        match policy_type:
+                            case 'user':
+                                policy['users'] = policies[policy_type]
+                            case 'role':
+                                policy['roles'] = policies[policy_type]
+                            case 'aggregated':
+                                policy['policies'] = policies[policy_type]
+                            case 'group':
+                                policy['groups'] = policies[policy_type]
+                    else:
+                        for _key in policies[policy_type]:
+                            policy[_key] = policies[policy_type][_key]
                     policy_list.append(policy["name"])
                     response_policy = keycloak_client.register_general_policy(policy, client_id, policy_type)
 
@@ -108,7 +112,7 @@ def construct_blueprint(keycloak_client):
             except KeycloakPostError as error:
                 return custom_error(error.error_message, error.response_code)
             except:
-                return custom_error("Unknown server error", 500)"""
+                return custom_error("Unknown server error", 500)
 
     @resources.route("/<client_id>/resources/<resource_id>", methods=["PUT"])
     def update_resource(client_id: str, resource_id: str):
@@ -162,6 +166,7 @@ def construct_blueprint(keycloak_client):
                                "minuteEnd":<minute>"""
         
         policy_types = ['user', 'client', 'role', 'time', 'regex', 'group', 'scope', 'aggregated']
+        resource_accepted_fields = ['name','uris','attributes', 'ownerManagedAccess', 'resource_scopes', 'type']
         policy_accepted_fields = ['logic', 'decisionStrategy', 'name', 'description', 'groupsClaim', 'targetClaim']
         time_accepted_fields = ["notAfter","notBefore","dayMonth","dayMonthEnd","month","monthEnd","year","yearEnd","hour","hourEnd","minute","minuteEnd"]
         if 'resource' not in item:
@@ -172,6 +177,11 @@ def construct_blueprint(keycloak_client):
             return 'Resource name required. '+ payload_minimum_example
         if 'uris' not in item['resource']:
             return 'Resource uris required. '+ payload_minimum_example
+        for resource_key in item['resource']:
+            if resource_key in resource_accepted_fields:
+                continue
+            else:
+                return 'There are fields not accepted in "resource"'
         
         for key in item['permissions']:
             if not isinstance(item['permissions'][key], list) and not isinstance(item['permissions'][key], dict):
