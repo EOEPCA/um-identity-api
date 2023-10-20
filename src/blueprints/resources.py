@@ -62,6 +62,8 @@ def construct_blueprint(keycloak_client):
         }]"""
         payload = request.get_json()
         policy_list = []
+
+        response_list = []
         
         for item in payload:
             # validate item fields
@@ -77,6 +79,7 @@ def construct_blueprint(keycloak_client):
 
             try:
                 # reconstruct resource object so it works when user sends unknown fields and to change field names to match what keycloak api expects
+                resource["name"] = resource["name"].replace(" ", "_")
                 response_resource = keycloak_client.register_resource( resource, client_id)
                 for policy_type in policies:
                     policy = {"name": resource["name"].replace(" ", "") + "_" + policy_type + "_policy"}
@@ -98,7 +101,7 @@ def construct_blueprint(keycloak_client):
 
                 permission_payload = {
                     "type": "resource",
-                    "name": resource["name"] + "permission",
+                    "name": resource["name"] + "_permission",
                     "decisionStrategy": decisionStrategy,
                     "resources": [
                         resource["name"]
@@ -108,11 +111,38 @@ def construct_blueprint(keycloak_client):
 
                 permission_response = keycloak_client.create_client_authz_resource_based_permission(client_id, permission_payload)
 
-                return response_resource
+                response_list.append(response_resource)
             except KeycloakPostError as error:
                 return custom_error(error.error_message, error.response_code)
             except:
                 return custom_error("Unknown server error", 500)
+        return response_list
+            
+    
+    @resources.route("/<client_id>/delete-resources/<resource_name>", methods=["DELETE"])
+    def delete_resource_and_policies(client_id: str, resource_name: str):
+        try:
+            client_policies = keycloak_client.get_client_authz_policies(client_id)
+            policy_types = ['user', 'client', 'role', 'time', 'regex', 'group', 'scope', 'aggregated']
+            for policy in client_policies:
+                for policy_type in policy_types:
+                    if policy['name'] == resource_name + '_' + policy_type + '_policy':
+                        keycloak_client.delete_policy(policy['id'], client_id)
+            permissions = keycloak_client.get_client_resource_permissions(client_id)
+            for permission in permissions:
+                if permission['name'] == resource_name +'permission':
+                        keycloak_client.delete_resource_permissions(client_id, permission['id'])
+
+            _resources = keycloak_client.get_resources(client_id)
+            for resource in _resources:
+                if resource['name'] == resource_name:
+                    resource_delete_response = keycloak_client.delete_resource(resource['_id'], client_id)
+            return resource_delete_response
+        except KeycloakDeleteError as error:
+                return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
+    
 
     @resources.route("/<client_id>/resources/<resource_id>", methods=["PUT"])
     def update_resource(client_id: str, resource_id: str):
