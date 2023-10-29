@@ -7,7 +7,7 @@ def construct_blueprint(keycloak_client):
     policies = Blueprint('policies', __name__)
 
     # -------- Always returns empty -------
-    #@policies.route("/policies", methods=["GET"])
+    #@policies.route("/policies", methods=["OPTIONS", "GET"])
     #def get_policies():
     #    resource = request.args.get('resource', "")
     #    name = request.args.get('name', "")
@@ -17,7 +17,7 @@ def construct_blueprint(keycloak_client):
     #    return keycloak_client.get_policies(resource, name, scope, first, maximum)
     # --------------- GET -----------------
     
-    @policies.route("/<client_id>/policies", methods=["GET"])
+    @policies.route("/<client_id>/policies", methods=["OPTIONS", "GET"])
     def get_client_authz_policies(client_id: str):
         try:
             response = keycloak_client.get_client_authz_policies(client_id)
@@ -29,7 +29,7 @@ def construct_blueprint(keycloak_client):
 
     # --------------- POST -----------------
 
-    @policies.route("/<client_id>/policies/client", methods=["POST"])
+    @policies.route("/<client_id>/policies/client", methods=["OPTIONS", "POST"])
     def create_client_policy(client_id: str):
         policy = request.get_json()
         try:
@@ -149,7 +149,7 @@ def construct_blueprint(keycloak_client):
     
     # --------------- UPDATE -----------------
     
-    @policies.route("/<client_id>/policies/<policy_id>", methods=["PUT"])
+    @policies.route("/<client_id>/policies/<policy_id>", methods=["OPTIONS", "PUT"])
     def update_policy(client_id: str, policy_id: str):
         policy = request.get_json()
         try:
@@ -162,7 +162,7 @@ def construct_blueprint(keycloak_client):
     
     # --------------- DELETE -----------------
 
-    @policies.route("/<client_id>/policies/<policy_id>", methods=["DELETE"])
+    @policies.route("/<client_id>/policies/<policy_id>", methods=["OPTIONS", "DELETE"])
     def delete_policy(client_id: str ,policy_id: str):
         try:
             response =  keycloak_client.delete_policy(policy_id, client_id)
