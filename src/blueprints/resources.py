@@ -36,7 +36,7 @@ def construct_blueprint(keycloak_client):
             return custom_error(error.error_message, error.response_code)
         except:
             return custom_error("Unknown server error", 500)
-        
+
 
     @resources.route("/<client_id>/register-resources", methods=["OPTIONS", "POST"])
     def register_and_protect_resources(client_id: str ):
