@@ -143,9 +143,6 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
     
-
-    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "PUT"])
-
     @resources.route("/<client_id>/register-resources", methods=["OPTIONS", "POST"])
     def register_and_protect_resources(client_id: str ):
         """payload = [{
@@ -253,7 +250,7 @@ def construct_blueprint(keycloak_client):
             return custom_error("Unknown server error", 500)
     
 
-    @resources.route("/<client_id>/resources/<resource_id>", methods=["PUT"])
+    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "PUT"])
     def update_resource(client_id: str, resource_id: str):
         resource = request.get_json()
         try:
@@ -271,6 +268,74 @@ def construct_blueprint(keycloak_client):
             return response
         except KeycloakDeleteError as error:
             return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
+        
+    @resources.route("/create-client", methods=["POST"])
+    def create_client():
+        payload = request.get_json()
+        helper_text = """ The following fields are allowed:
+clientId*: String
+name: String
+description: String
+rootUrl: String
+adminUrl: String
+baseUrl: String
+surrogateAuthRequired: Boolean
+enabled: Boolean
+alwaysDisplayInConsole: Boolean
+clientAuthenticatorType: String
+secret: String
+registrationAccessToken: String
+defaultRoles: List of [string]
+redirectUris: List of [string]
+webOrigins: List of [string]
+notBefore: Integer
+bearerOnly: Boolean
+consentRequired: Boolean
+standardFlowEnabled: Boolean
+implicitFlowEnabled: Boolean
+directAccessGrantsEnabled: Boolean
+serviceAccountsEnabled: Boolean
+oauth2DeviceAuthorizationGrantEnabled: Boolean
+authorizationServicesEnabled: Boolean
+directGrantsOnly: Boolean
+publicClient: Boolean
+frontchannelLogout: Boolean
+protocol: String
+attributes: Map of [string]
+authenticationFlowBindingOverrides: Map of [string]
+fullScopeAllowed: Boolean
+nodeReRegistrationTimeout: Integer
+registeredNodes: Map of [integer]
+protocolMappers: List of ProtocolMapperRepresentation
+clientTemplate: String
+useTemplateConfig: Boolean
+useTemplateScope: Boolean
+useTemplateMappers: Boolean
+defaultClientScopes: List of [string]
+ClientScopes: List of [string]
+authorizationSettings: ResourceServerRepresentation
+access: Map of [boolean]
+origin: String
+resources: List of[Resource Representation]"""
+        if 'clientId' not in payload:
+            return custom_error("The field 'client_id' is mandatory", 400)
+        if 'redirectUris' not in payload:
+            payload['redirectUris'] = ['*']
+        if 'standardFlowEnabled' not in payload:
+            payload['standardFlowEnabled'] = True
+        if 'protocol' not in payload:
+            payload['protocol'] = 'openid-connect'
+        if 'resources' in payload:
+            resources = payload['resources']
+            del payload['resources']
+            keycloak_client.create_client(payload)
+            return register_and_protect_resources(payload['clientId'], resources)
+        try:
+            return keycloak_client.create_client(payload)
+        except KeycloakPostError as error:
+                return custom_error(error.error_message, error.response_code)
         except:
             return custom_error("Unknown server error", 500)
 
