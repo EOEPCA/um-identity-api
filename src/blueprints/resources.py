@@ -6,7 +6,7 @@ def construct_blueprint(keycloak_client):
     keycloak_client = keycloak_client
     resources = Blueprint('resources', __name__)
 
-    @resources.route("/<client_id>/resources", methods=["GET"])
+    @resources.route("/<client_id>/resources", methods=["OPTIONS", "GET"])
     def get_resources(client_id: str):
         try:
             response =  keycloak_client.get_resources(client_id)
@@ -16,7 +16,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/resources/<resource_id>", methods=["GET"])
+    @resources.route("/resources/<resource_id>", methods=["OPTIONS", "GET"])
     def get_resource(resource_id: str):
         try:
             response =  keycloak_client.get_resource(resource_id)
@@ -26,7 +26,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/<client_id>/resources", methods=["POST"])
+    @resources.route("/<client_id>/resources", methods=["OPTIONS", "POST"])
     def register_resource(client_id: str ):
         resource = request.get_json()
         try:
@@ -37,6 +37,114 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
+
+    @resources.route("/<client_id>/register-resources", methods=["OPTIONS", "POST"])
+    def register_and_protect_resources(client_id: str ):
+        """payload = [{
+            "resource":{
+                "name": "resource1",
+                "uris": ["/resource1/", "/resource2/"],
+                'attributes': {},
+                'scopes': ['view'],
+                'ownerManagedAccess': False,
+            },
+            "permissions": {
+                "user": {
+                    "users":["user1","user2"],
+                    "logic":"NEGATIVE"
+                    },
+                "role": {
+                    "roles":["role1","role2"],
+                    "logic":"POSITIVE"
+                    },
+            },
+            "decisionStrategy": "UNANIMOUS"
+        }]"""
+        payload = request.get_json()
+        policy_list = []
+
+        response_list = []
+        
+        for item in payload:
+            # validate item fields
+            error = _validate_register_resource(item)
+            if error:
+                return custom_error(error, 400)
+            
+            resource = item["resource"]
+            policies = item["permissions"]
+            decisionStrategy = item['decisionStrategy'] if 'decisionStrategy' in item else "UNANIMOUS"
+            type = 'urn:' + client_id + ':resources:default'
+            scopes = resource['scopes'] if 'scopes' in resource and resource['scopes'] != [] else ['access']
+
+            try:
+                # reconstruct resource object so it works when user sends unknown fields and to change field names to match what keycloak api expects
+                resource["name"] = resource["name"].replace(" ", "_")
+                response_resource = keycloak_client.register_resource( resource, client_id)
+                for policy_type in policies:
+                    policy = {"name": resource["name"].replace(" ", "") + "_" + policy_type + "_policy"}
+                    if isinstance(policies[policy_type], list):
+                        match policy_type:
+                            case 'user':
+                                policy['users'] = policies[policy_type]
+                            case 'role':
+                                policy['roles'] = policies[policy_type]
+                            case 'aggregated':
+                                policy['policies'] = policies[policy_type]
+                            case 'group':
+                                policy['groups'] = policies[policy_type]
+                    else:
+                        for _key in policies[policy_type]:
+                            policy[_key] = policies[policy_type][_key]
+                    policy_list.append(policy["name"])
+                    response_policy = keycloak_client.register_general_policy(policy, client_id, policy_type)
+
+                permission_payload = {
+                    "type": "resource",
+                    "name": resource["name"] + "_permission",
+                    "decisionStrategy": decisionStrategy,
+                    "resources": [
+                        resource["name"]
+                    ],
+                    "policies": policy_list
+                }
+
+                permission_response = keycloak_client.create_client_authz_resource_based_permission(client_id, permission_payload)
+
+                response_list.append(response_resource)
+            except KeycloakPostError as error:
+                return custom_error(error.error_message, error.response_code)
+            except:
+                return custom_error("Unknown server error", 500)
+        return response_list
+            
+    
+    @resources.route("/<client_id>/delete-resources/<resource_name>", methods=["OPTIONS", "DELETE"])
+    def delete_resource_and_policies(client_id: str, resource_name: str):
+        try:
+            client_policies = keycloak_client.get_client_authz_policies(client_id)
+            policy_types = ['user', 'client', 'role', 'time', 'regex', 'group', 'scope', 'aggregated']
+            for policy in client_policies:
+                for policy_type in policy_types:
+                    if policy['name'] == resource_name + '_' + policy_type + '_policy':
+                        keycloak_client.delete_policy(policy['id'], client_id)
+            permissions = keycloak_client.get_client_resource_permissions(client_id)
+            for permission in permissions:
+                if permission['name'] == resource_name +'permission':
+                        keycloak_client.delete_resource_permissions(client_id, permission['id'])
+
+            _resources = keycloak_client.get_resources(client_id)
+            for resource in _resources:
+                if resource['name'] == resource_name:
+                    resource_delete_response = keycloak_client.delete_resource(resource['_id'], client_id)
+            return resource_delete_response
+        except KeycloakDeleteError as error:
+                return custom_error(error.error_message, error.response_code)
+        except:
+            return custom_error("Unknown server error", 500)
+    
+
+    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "PUT"])
 
     @resources.route("/<client_id>/register-resources", methods=["OPTIONS", "POST"])
     def register_and_protect_resources(client_id: str ):
@@ -156,7 +264,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/<client_id>/resources/<resource_id>", methods=["DELETE"])
+    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "DELETE"])
     def delete_resource(client_id: str, resource_id: str):
         try:
             response =  keycloak_client.delete_resource(resource_id, client_id)
@@ -165,76 +273,7 @@ def construct_blueprint(keycloak_client):
             return custom_error(error.error_message, error.response_code)
         except:
             return custom_error("Unknown server error", 500)
-        
-    
-    @resources.route("/create-client", methods=["POST"])
-    def create_client():
-        payload = request.get_json()
-        helper_text = """ The following fields are allowed:
-clientId*: String
-name: String
-description: String
-rootUrl: String
-adminUrl: String
-baseUrl: String
-surrogateAuthRequired: Boolean
-enabled: Boolean
-alwaysDisplayInConsole: Boolean
-clientAuthenticatorType: String
-secret: String
-registrationAccessToken: String
-defaultRoles: List of [string]
-redirectUris: List of [string]
-webOrigins: List of [string]
-notBefore: Integer
-bearerOnly: Boolean
-consentRequired: Boolean
-standardFlowEnabled: Boolean
-implicitFlowEnabled: Boolean
-directAccessGrantsEnabled: Boolean
-serviceAccountsEnabled: Boolean
-oauth2DeviceAuthorizationGrantEnabled: Boolean
-authorizationServicesEnabled: Boolean
-directGrantsOnly: Boolean
-publicClient: Boolean
-frontchannelLogout: Boolean
-protocol: String
-attributes: Map of [string]
-authenticationFlowBindingOverrides: Map of [string]
-fullScopeAllowed: Boolean
-nodeReRegistrationTimeout: Integer
-registeredNodes: Map of [integer]
-protocolMappers: List of ProtocolMapperRepresentation
-clientTemplate: String
-useTemplateConfig: Boolean
-useTemplateScope: Boolean
-useTemplateMappers: Boolean
-defaultClientScopes: List of [string]
-ClientScopes: List of [string]
-authorizationSettings: ResourceServerRepresentation
-access: Map of [boolean]
-origin: String
-resources: List of[Resource Representation]"""
-        if 'clientId' not in payload:
-            return custom_error("The field 'client_id' is mandatory", 400)
-        if 'redirectUris' not in payload:
-            payload['redirectUris'] = ['*']
-        if 'standardFlowEnabled' not in payload:
-            payload['standardFlowEnabled'] = True
-        if 'protocol' not in payload:
-            payload['protocol'] = 'openid-connect'
-        if 'resources' in payload:
-            resources = payload['resources']
-            del payload['resources']
-            keycloak_client.create_client(payload)
-            return register_and_protect_resources(payload['clientId'], resources)
-        try:
-            return keycloak_client.create_client(payload)
-        except KeycloakPostError as error:
-                return custom_error(error.error_message, error.response_code)
-        except:
-            return custom_error("Unknown server error", 500)
-    
+
     def custom_error(message, status_code): 
         return message, status_code
     
