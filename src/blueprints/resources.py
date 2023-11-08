@@ -39,7 +39,7 @@ def construct_blueprint(keycloak_client):
 
 
     @resources.route("/<client_id>/register-resources", methods=["OPTIONS", "POST"])
-    def register_and_protect_resources(client_id: str ):
+    def register_and_protect_resources(client_id: str, payload=None ):
         """payload = [{
             "resource":{
                 "name": "resource1",
@@ -60,7 +60,8 @@ def construct_blueprint(keycloak_client):
             },
             "decisionStrategy": "UNANIMOUS"
         }]"""
-        payload = request.get_json()
+        if payload == None:
+            payload = request.get_json()
         policy_list = []
 
         response_list = []
