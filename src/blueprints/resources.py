@@ -6,7 +6,7 @@ def construct_blueprint(keycloak_client):
     keycloak_client = keycloak_client
     resources = Blueprint('resources', __name__)
 
-    @resources.route("/<client_id>/resources", methods=["GET"])
+    @resources.route("/<client_id>/resources", methods=["OPTIONS", "GET"])
     def get_resources(client_id: str):
         try:
             response =  keycloak_client.get_resources(client_id)
@@ -16,7 +16,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/resources/<resource_id>", methods=["GET"])
+    @resources.route("/resources/<resource_id>", methods=["OPTIONS", "GET"])
     def get_resource(resource_id: str):
         try:
             response =  keycloak_client.get_resource(resource_id)
@@ -26,7 +26,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/<client_id>/resources", methods=["POST"])
+    @resources.route("/<client_id>/resources", methods=["OPTIONS", "POST"])
     def register_resource(client_id: str ):
         resource = request.get_json()
         try:
@@ -36,7 +36,7 @@ def construct_blueprint(keycloak_client):
             return custom_error(error.error_message, error.response_code)
         except:
             return custom_error("Unknown server error", 500)
-        
+
 
     @resources.route("/<client_id>/register-resources", methods=["POST"])
     def register_and_protect_resources(client_id: str, payload=None ):
@@ -120,7 +120,7 @@ def construct_blueprint(keycloak_client):
         return response_list
             
     
-    @resources.route("/<client_id>/delete-resources/<resource_name>", methods=["DELETE"])
+    @resources.route("/<client_id>/delete-resources/<resource_name>", methods=["OPTIONS", "DELETE"])
     def delete_resource_and_policies(client_id: str, resource_name: str):
         try:
             client_policies = keycloak_client.get_client_authz_policies(client_id)
@@ -145,7 +145,7 @@ def construct_blueprint(keycloak_client):
             return custom_error("Unknown server error", 500)
     
 
-    @resources.route("/<client_id>/resources/<resource_id>", methods=["PUT"])
+    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "PUT"])
     def update_resource(client_id: str, resource_id: str):
         resource = request.get_json()
         try:
@@ -156,7 +156,7 @@ def construct_blueprint(keycloak_client):
         except:
             return custom_error("Unknown server error", 500)
 
-    @resources.route("/<client_id>/resources/<resource_id>", methods=["DELETE"])
+    @resources.route("/<client_id>/resources/<resource_id>", methods=["OPTIONS", "DELETE"])
     def delete_resource(client_id: str, resource_id: str):
         try:
             response =  keycloak_client.delete_resource(resource_id, client_id)
