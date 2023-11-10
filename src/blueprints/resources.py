@@ -62,8 +62,6 @@ def construct_blueprint(keycloak_client):
         }]"""
         if payload == None:
             payload = request.get_json()
-        policy_list = []
-
         response_list = []
         
         for item in payload:
@@ -79,6 +77,7 @@ def construct_blueprint(keycloak_client):
             scopes = resource['scopes'] if 'scopes' in resource and resource['scopes'] != [] else ['access']
 
             try:
+                policy_list = []
                 # reconstruct resource object so it works when user sends unknown fields and to change field names to match what keycloak api expects
                 resource["name"] = resource["name"].replace(" ", "_")
                 response_resource = keycloak_client.register_resource( resource, client_id)
@@ -224,8 +223,8 @@ resources: List of[Resource Representation]"""
         if 'resources' in payload:
             resources = payload['resources']
             del payload['resources']
-            keycloak_client.create_client(payload)
-            return register_and_protect_resources(payload['clientId'], resources)
+            created_client = keycloak_client.create_client(payload)
+            return {'client':created_client, 'resources':register_and_protect_resources(payload['clientId'], resources)}
         try:
             return keycloak_client.create_client(payload)
         except KeycloakPostError as error:
