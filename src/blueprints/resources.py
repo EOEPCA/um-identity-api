@@ -220,6 +220,20 @@ resources: List of[Resource Representation]"""
             payload['standardFlowEnabled'] = True
         if 'protocol' not in payload:
             payload['protocol'] = 'openid-connect'
+        if 'publicClient' not in payload:
+            payload['publicClient'] = False
+        if 'authorizationServicesEnabled' not in payload:
+            payload['authorizationServicesEnabled'] = True
+        if 'serviceAccountsEnabled' not in payload:
+            payload['serviceAccountsEnabled'] = True
+        if 'implicitFlowEnabled' not in payload:
+            payload['implicitFlowEnabled'] = False
+        if 'directAccessGrantsEnabled' not in payload:
+            payload['directAccessGrantsEnabled'] = True
+        if 'standardFlowEnabled' not in payload:
+            payload['standardFlowEnabled'] = True
+        if 'frontchannelLogout' not in payload:
+            payload['frontchannelLogout'] = True
         if 'resources' in payload:
             resources = payload['resources']
             del payload['resources']
