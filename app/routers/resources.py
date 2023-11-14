@@ -1,29 +1,25 @@
-from flask import Blueprint
+from http.client import HTTPException
+
+from fastapi import APIRouter
 from keycloak import KeycloakGetError
 
+router = APIRouter(
+    prefix="/resources",
+    tags=["resouces"],
+)
 
-def construct_blueprint(keycloak_client):
-    keycloak_client = keycloak_client
-    resources = Blueprint('resources', __name__)
 
-    @resources.route("/resources", methods=["OPTIONS", "GET"])
-    def get_resources():
-        try:
-            response = keycloak_client.get_resources()
-            return response
-        except KeycloakGetError as error:
-            return error.error_message, error.response_code
-        except:
-            return "Unknown server error", 500
+@router.get("/")
+def get_resources(keycloak):
+    try:
+        return keycloak.get_resources()
+    except KeycloakGetError as e:
+        return HTTPException(e.response_code, e.error_message)
 
-    @resources.route("/resources/<resource_id>", methods=["OPTIONS", "GET"])
-    def get_resource(resource_id: str):
-        try:
-            response = keycloak_client.get_resource(resource_id)
-            return response
-        except KeycloakGetError as error:
-            return error.error_message, error.response_code
-        except:
-            return "Unknown server error", 500
 
-    return resources
+@router.get("/resources/{resource_id}")
+def get_resource(keycloak, resource_id: str):
+    try:
+        return keycloak.get_resource(resource_id)
+    except KeycloakGetError as e:
+        return HTTPException(e.response_code, e.error_message)

@@ -38,15 +38,12 @@
 
 - [Table of Contents](#table-of-contents)
 - [About The Project](#about-the-project)
-    - [Built With](#built-with)
+  - [Built With](#built-with)
 - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Testing](#testing)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
 - [Documentation](#documentation)
 - [Usage](#usage)
-    - [Running the template service](#running-the-template-service)
-    - [Upgrading Gradle Wrapper](#upgrading-gradle-wrapper)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -109,7 +106,7 @@ cd um-identity-api
     5.1 Run locally with Python
     ```sh
     pip install -r requirements.txt
-    python -m "flask" run --host=0.0.0.0 --port=5566
+    uvicorn app.main:app
     ```
     5.2 Run locally with Docker
     ```sh
