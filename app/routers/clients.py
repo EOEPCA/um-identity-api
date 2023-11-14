@@ -4,22 +4,12 @@ from keycloak import KeycloakDeleteError, KeycloakGetError, KeycloakPostError, K
 
 def construct_blueprint(keycloak_client):
     keycloak_client = keycloak_client
-    resources = Blueprint('resources', __name__)
+    resources = Blueprint('clients', __name__)
 
     @resources.route("/<client_id>/resources", methods=["OPTIONS", "GET"])
     def get_resources(client_id: str):
         try:
             response =  keycloak_client.get_resources(client_id)
-            return response
-        except KeycloakGetError as error:
-            return custom_error(error.error_message, error.response_code)
-        except:
-            return custom_error("Unknown server error", 500)
-
-    @resources.route("/resources/<resource_id>", methods=["OPTIONS", "GET"])
-    def get_resource(resource_id: str):
-        try:
-            response =  keycloak_client.get_resource(resource_id)
             return response
         except KeycloakGetError as error:
             return custom_error(error.error_message, error.response_code)
@@ -62,7 +52,6 @@ def construct_blueprint(keycloak_client):
         }]"""
         if payload == None:
             payload = request.get_json()
-        policy_list = []
 
         response_list = []
         
@@ -81,7 +70,8 @@ def construct_blueprint(keycloak_client):
             try:
                 # reconstruct resource object so it works when user sends unknown fields and to change field names to match what keycloak api expects
                 resource["name"] = resource["name"].replace(" ", "_")
-                response_resource = keycloak_client.register_resource( resource, client_id)
+                response_resource = keycloak_client.register_resource(resource, client_id)
+                policy_list = []
                 for policy_type in policies:
                     policy = {"name": resource["name"].replace(" ", "") + "_" + policy_type + "_policy"}
                     if isinstance(policies[policy_type], list):

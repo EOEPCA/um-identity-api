@@ -6,26 +6,22 @@ import os
 from random import choice
 from string import ascii_lowercase
 
-from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 from keycloak import KeycloakConnectionError
-from urllib3.exceptions import NewConnectionError
 
-import blueprints.permissions as permissions
-import blueprints.policies as policies
-import blueprints.resources as resources
 import identityutils.logger as logger
 from identityutils.configuration import load_configuration
 from identityutils.keycloak_client import KeycloakClient
 from retry.api import retry_call
-from flask_healthz import healthz
+
+from fastapi import FastAPI
 
 logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_API")
 
 config_path = os.path.join(os.path.dirname(__file__), "../conf/config.ini")
 
-app = Flask(__name__)
+app = FastAPI()
 app.secret_key = ''.join(choice(ascii_lowercase) for _ in range(30))  # Random key
 app.config['HEALTHZ'] = {
     "live": lambda: None,
@@ -33,6 +29,7 @@ app.config['HEALTHZ'] = {
 }
 
 def register_endpoints(config, keycloak):
+    app.register_blueprint(clients.construct_blueprint(keycloak_client=keycloak))
     app.register_blueprint(resources.construct_blueprint(keycloak_client=keycloak))
     app.register_blueprint(policies.construct_blueprint(keycloak_client=keycloak))
     app.register_blueprint(permissions.construct_blueprint(keycloak_client=keycloak))
