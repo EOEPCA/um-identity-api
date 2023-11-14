@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List
+from typing import Any, List, Optional
 
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, Depends
@@ -14,12 +14,13 @@ router = APIRouter(
 POLICY_TYPES = ['user', 'client', 'role', 'time', 'regex', 'group', 'scope', 'aggregated']
 
 
+
 class Resource(BaseModel):
     name: str
     uris: List[str]
-    attributes: Any = {}
-    scopes: List[str]
-    ownerManagedAccess: bool = True
+    attributes: Optional[Any] = {}
+    scopes: Optional[List[str]] = None
+    ownerManagedAccess: Optional[bool] = True
 
 
 class Logic(Enum):
@@ -29,17 +30,21 @@ class Logic(Enum):
 
 class UserPermission(BaseModel):
     users: List[str]
-    logic: Logic
+    logic: Optional[Logic] = None
 
 
 class RolePermission(BaseModel):
     users: List[str]
-    logic: Logic
+    logic: Optional[Logic] = None
 
 
 class Permission(BaseModel):
     user: List[UserPermission]
     role: List[RolePermission]
+
+class Resources(BaseModel):
+    resource: Resource
+    permissions: Permission
 
 
 class DecisionStrategy(Enum):
@@ -51,32 +56,32 @@ class DecisionStrategy(Enum):
 class ResourcePermissions(BaseModel):
     resource: List[Resource]
     permissions: List[Permission]
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS
+    decisionStrategy: Optional[DecisionStrategy] = DecisionStrategy.UNANIMOUS
 
 
 class Client(BaseModel):
     clientId: str
-    name: str
-    description: str
-    rootUrl: str
-    adminUrl: str
-    baseUrl: str
-    secret: str
-    protocol: str
-    defaultRoles: List[str]
-    redirectUris: List[str]
-    webOrigins: List[str]
-    bearerOnly: bool
-    consentRequired: bool
-    standardFlowEnabled: bool
-    implicitFlowEnabled: bool
-    directAccessGrantsEnabled: bool
-    serviceAccountsEnabled: bool
-    oauth2DeviceAuthorizationGrantEnabled: bool
-    authorizationServicesEnabled: bool
-    directGrantsOnly: bool
-    publicClient: bool
-    resources: List[Resource]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    rootUrl: Optional[str] = None
+    adminUrl: Optional[str] = None
+    baseUrl: Optional[str] = None
+    secret: Optional[str] = None
+    protocol: Optional[str] = None
+    defaultRoles: Optional[List[str]] = None
+    redirectUris: Optional[List[str]] = None
+    webOrigins: Optional[List[str]] = None
+    bearerOnly: Optional[bool] = None
+    consentRequired: Optional[bool] = None
+    standardFlowEnabled: Optional[bool] = None
+    implicitFlowEnabled: Optional[bool] = None
+    directAccessGrantsEnabled: Optional[bool] = None
+    serviceAccountsEnabled: Optional[bool] = None
+    oauth2DeviceAuthorizationGrantEnabled: Optional[bool] = None
+    authorizationServicesEnabled: Optional[bool] = None
+    directGrantsOnly: Optional[bool] = None
+    publicClient: Optional[bool] = None
+    resources: Optional[List[Resources]] = None
 
 
 class ResourceBasedPermission(BaseModel):
@@ -364,7 +369,7 @@ def delete_resource(keycloak, client_id: str, resource_id: str):
         return HTTPException(e.response_code, e.error_message)
 
 
-@router.post("/")
+@router.post("")
 def create_client(keycloak, client: Client):
     if 'clientId' not in client:
         return HTTPException(400, "The field 'client_id' is mandatory")
