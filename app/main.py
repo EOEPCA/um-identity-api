@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
+import os
+from typing import Mapping
 
 import uvicorn
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
+from identityutils.configuration import load_configuration
 
-from app.dependencies import keycloak_client
-from app.routers import clients, health, policies, resources
+from app.error_handling import exception_handler
+from app.routers import clients, health, policies, resources, clients_permissions, clients_resources, clients_policies
 
 
-app = FastAPI(dependencies=[Depends(keycloak_client)])
+config: Mapping[str, str] = (
+    load_configuration(os.path.join(os.path.dirname(__file__), "../config.ini"))
+)
+
+app = FastAPI(
+    title=config.get("Swagger", "swagger_title"),
+    description=config.get("Swagger", "swagger_description"),
+    version=config.get("Swagger", "swagger_version"),
+)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -18,23 +28,25 @@ app.add_middleware(
     allow_headers=["*"],
     allow_origins=["*"],
 )
+exception_handler(app)
 app.include_router(clients.router)
-app.include_router(health.router)
+app.include_router(clients_permissions.router)
+app.include_router(clients_policies.router)
+app.include_router(clients_resources.router)
 app.include_router(policies.router)
 app.include_router(resources.router)
+app.include_router(health.router)
 
 
-@app.exception_handler(500)
-async def internal_exception_handler():
-    return JSONResponse(status_code=500, content=jsonable_encoder({"code": 500, "msg": "Internal Server Error"}))
+@app.get("/", include_in_schema=False)
+async def docs_redirect():
+    return RedirectResponse(url='/docs')
 
-@app.exception_handler(400)
-async def bad_request_handler():
-    return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": "Bad request"}))
 
 def main() -> None:
     """Entrypoint to invoke when this module is invoked on the remote server."""
     uvicorn.run("main:app", host="0.0.0.0")
+
 
 if __name__ == "__main__":
     main()

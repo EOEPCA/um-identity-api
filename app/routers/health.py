@@ -1,13 +1,15 @@
 from fastapi import status, APIRouter
 from pydantic import BaseModel
 
+from app.models.base import APIBaseModel
+
 router = APIRouter(
     prefix="/health",
-    tags=["health"]
+    tags=["Health checks"]
 )
 
 
-class HealthCheck(BaseModel):
+class HealthCheck(APIBaseModel):
     """Response model to validate and return when performing a health check."""
     status: str = "OK"
 
