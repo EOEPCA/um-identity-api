@@ -16,8 +16,7 @@ def exception_handler(app: FastAPI) -> None:
             return await call_next(request)
         except (KeycloakGetError, KeycloakPostError, KeycloakPutError, KeycloakDeleteError) as e:
             print(traceback.format_exc())
-            return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": e.error_message}))
-            #return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": f"{json.loads(e.error_message)['errorMessage']}"}))
+            return JSONResponse(status_code=e.response_code, content=jsonable_encoder(json.loads(e.error_message)))
 
     @app.exception_handler(500)
     async def internal_exception_handler():
