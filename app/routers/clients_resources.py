@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
+from app.log import log
 from app.models.clients import POLICY_TYPES, Resource
 
 router = APIRouter(
@@ -16,30 +17,34 @@ def register_resources(client_id: str, resources: List[Resource]):
     response_list = []
     for resource in resources:
         resource_name = resource.name.replace(" ", "_")
-        scopes = resource.scopes
-        permissions = resource.permissions
-        decision_strategy = resource.decisionStrategy
-        response_resource = keycloak.register_resource(resource.model_dump(), client_id)
+        res = {
+            "name": resource_name,
+            "uris": resource.uris,
+            "scopes": resource.scopes,
+        }
+        response_resource = keycloak.register_resource(res, client_id)
         response_list.append(response_resource)
+        permissions = resource.permissions
         policy_list = []
         if permissions.role:
             policy = {
                 "name": f'{resource_name}_role_policy',
-                "roles": permissions.role
+                "roles": [{"id": p} for p in permissions.role]
             }
-            policy_response = keycloak.register_role_policy(policy, policy, client_id)
+            log.info("pol " + str(policy))
+            policy_response = keycloak.register_role_policy(policy, client_id)
             policy_list.append(policy_response["name"])
         if permissions.user:
             policy = {
-                "name": f'{resource["name"]}_user_policy',
+                "name": f'{resource_name}_user_policy',
                 "users": permissions.user
             }
-            policy_response = keycloak.register_role_policy(policy, policy, client_id)
+            policy_response = keycloak.register_user_policy(policy, client_id)
             policy_list.append(policy_response["name"])
         permission_payload = {
             "type": "resource",
             "name": f'{resource_name}_permission',
-            "decisionStrategy": decision_strategy,
+            "decisionStrategy": resource.decisionStrategy,
             "resources": [
                 resource_name
             ],

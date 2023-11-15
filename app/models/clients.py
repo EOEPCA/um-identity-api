@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List, Optional
 
-from pydantic import PositiveInt, Field, ConfigDict
+from pydantic import PositiveInt, Field
 
 from app.models.base import APIBaseModel
 
@@ -58,9 +58,9 @@ class Client(APIBaseModel):
     defaultRoles: Optional[List[str]] = Field(None, description="Client Default roles")
     bearerOnly: Optional[bool] = Field(None, description="Enable/Disable Bearer only")
     consentRequired: Optional[bool] = Field(None, description="Enable/Disable Consent required")
-    publicClient: Optional[bool] = Field(None, description="Disable/Enable authentication to the client")
-    authorizationServicesEnabled: Optional[bool] = Field(None, description="Enable Authorization Services")
-    serviceAccountsEnabled: Optional[bool] = Field(None, description="Either or not to create a Service Account for the client")
+    publicClient: Optional[bool] = Field(False, description="Disable/Enable authentication to the client")
+    authorizationServicesEnabled: Optional[bool] = Field(True, description="Enable Authorization Services")
+    serviceAccountsEnabled: Optional[bool] = Field(True, description="Either or not to create a Service Account for the client")
     standardFlowEnabled: Optional[bool] = Field(True, description="Enable/Disable Standard Flow")
     implicitFlowEnabled: Optional[bool] = Field(None, description="Client name")
     directAccessGrantsEnabled: Optional[bool] = Field(None, description="Enable/Disable Direct Access Grants Flow")

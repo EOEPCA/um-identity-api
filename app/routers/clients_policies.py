@@ -73,7 +73,7 @@ def update_policy(client_id: str, policy_id: str,
                           ModifyRegexPolicy | ModifyRolePolicy | ModifyRelativeTimePolicy | ModifyDayMonthTimePolicy |
                           ModifyMonthTimePolicy | ModifyYearTimePolicy | ModifyHourTimePolicy | ModifyMinuteTimePolicy |
                           ModifyUserPolicy):
-    return keycloak.update_policy(client_id, policy_id, policy)
+    return keycloak.update_policy(client_id, policy_id, policy.model_dump())
 
 
 @router.delete("/{policy_id}")

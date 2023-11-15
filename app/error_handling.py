@@ -1,5 +1,6 @@
 import json
 from typing import Sequence, Any
+import traceback
 
 from fastapi import Request, status, FastAPI
 from fastapi.encoders import jsonable_encoder
@@ -14,7 +15,9 @@ def exception_handler(app: FastAPI) -> None:
         try:
             return await call_next(request)
         except (KeycloakGetError, KeycloakPostError, KeycloakPutError, KeycloakDeleteError) as e:
-            return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": f"{json.loads(e.error_message)['errorMessage']}"}))
+            print(traceback.format_exc())
+            return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": e.error_message}))
+            #return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": f"{json.loads(e.error_message)['errorMessage']}"}))
 
     @app.exception_handler(500)
     async def internal_exception_handler():

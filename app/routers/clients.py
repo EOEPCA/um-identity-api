@@ -18,17 +18,16 @@ router = APIRouter(
 def create_client(client: Client):
     resources = client.resources
     client_dict = client.model_dump()
-    if resources:
-        del client_dict['resources']
+    del client_dict['resources']
     response_client = keycloak.create_client(client_dict)
     if resources:
         response_resources = register_resources(client.clientId, resources)
         return {
-            client: response_client,
-            resources: response_resources
+            "client": response_client,
+            "resources": response_resources
         }
     return {
-        client: response_client
+        "client": response_client
     }
 
 
