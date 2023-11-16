@@ -6,14 +6,11 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from identityutils.configuration import load_configuration
 
+from app.configuration import config
 from app.error_handling import exception_handler
 from app.routers import clients, health, policies, resources, clients_permissions, clients_resources, clients_policies
 
-config: Mapping[str, str] = (
-    load_configuration(os.path.join(os.path.dirname(__file__), "../config.ini"))
-)
 
 app = FastAPI(
     title=config.get("Swagger", "swagger_title"),

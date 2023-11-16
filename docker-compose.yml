@@ -1,7 +1,10 @@
 version: "3.5"
 services:
   identity-api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: um-identity-api:local
     container_name: um-identity-api
     environment:
       - AUTH_SERVER_URL=http://keycloak:8080
