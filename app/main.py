@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os
-from typing import Mapping
 
 import uvicorn
 from fastapi import FastAPI
