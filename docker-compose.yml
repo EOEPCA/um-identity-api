@@ -1,0 +1,45 @@
+version: "3.5"
+services:
+  identity-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: um-identity-api:local
+    container_name: um-identity-api
+    environment:
+      - AUTH_SERVER_URL=http://keycloak:8080
+    ports:
+      - '8080:8080'
+  keycloak:
+      image: quay.io/keycloak/keycloak:22.0.5
+      container_name: keycloak
+      ports:
+        - "80:8080"
+      environment:
+        - KEYCLOAK_LOGLEVEL=DEBUG
+        - WILDFLY_LOGLEVEL=DEBUG
+        - KEYCLOAK_ADMIN=admin
+        - KEYCLOAK_ADMIN_PASSWORD=admin
+        - KC_PROXY=edge
+        - KC_LOGLEVEL=WARN
+        - PROXY_ADDRESS_FORWARDING=true
+        - KC_HOSTNAME_STRICT=false
+        - KC_DB=postgres
+        - KC_DB_URL_HOST=postgres
+        - KC_DB_PASSWORD=123456
+        - KC_DB_USERNAME=keycloak
+        - KC_DB_URL_PORT=5432
+      entrypoint: /opt/keycloak/bin/kc.sh start
+      restart: on-failure
+  postgres:
+    image: postgres:16.0
+    container_name: postgres
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=123456
+      - PGPASSWORD=123
+      - PGDATA=/var/lib/postgresql/data/keycloak
+    restart: on-failure

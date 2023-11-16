@@ -1,5 +1,5 @@
 *
-!src
-!conf
+!app
 !requirements.*
-!.flaskenv
+!config.ini
+!logging.yaml
