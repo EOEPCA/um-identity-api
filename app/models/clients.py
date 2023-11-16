@@ -26,6 +26,7 @@ class RolePermission(APIBaseModel):
 class Permission(APIBaseModel):
     user: List[str] | List[UserPermission] = Field([], description="User based permission")
     role: List[str] | List[RolePermission] = Field([], description="Role based permission")
+    authenticated: bool = Field(False, description="Authenticated only permission")
 
 
 class DecisionStrategy(Enum):

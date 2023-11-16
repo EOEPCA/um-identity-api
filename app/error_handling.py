@@ -4,7 +4,7 @@ import traceback
 
 from fastapi import Request, status, FastAPI
 from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from keycloak import KeycloakPostError, KeycloakGetError, KeycloakPutError, KeycloakDeleteError
 
@@ -20,11 +20,11 @@ def exception_handler(app: FastAPI) -> None:
 
     @app.exception_handler(500)
     async def internal_exception_handler():
-        return JSONResponse(status_code=500, content=jsonable_encoder({"code": 500, "msg": "Internal Server Error"}))
+        return JSONResponse(status_code=500, content=jsonable_encoder({"error": "Internal Server Error"}))
 
     @app.exception_handler(400)
     async def bad_request_handler():
-        return JSONResponse(status_code=400, content=jsonable_encoder({"code": 400, "msg": "Bad request"}))
+        return JSONResponse(status_code=400, content=jsonable_encoder({"error": "Bad request"}))
 
     @app.exception_handler(RequestValidationError)
     async def request_validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -36,7 +36,7 @@ def exception_handler(app: FastAPI) -> None:
         )
         return JSONResponse(
             status_code=status_code,
-            content={"detail": errors},
+            content={"error": errors},
         )
 
 
