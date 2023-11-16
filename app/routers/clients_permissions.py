@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
-from app.models.clients import ResourceBasedPermission
+from app.models.permissions import ResourceBasedPermission
 
 router = APIRouter(
     prefix="/{client_id}/permissions",

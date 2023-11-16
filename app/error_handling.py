@@ -1,6 +1,6 @@
 import json
-from typing import Sequence, Any
 import traceback
+from typing import Sequence, Any
 
 from fastapi import Request, status, FastAPI
 from fastapi.encoders import jsonable_encoder

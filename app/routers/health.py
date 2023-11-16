@@ -1,5 +1,4 @@
 from fastapi import status, APIRouter
-from pydantic import BaseModel
 
 from app.models.base import APIBaseModel
 

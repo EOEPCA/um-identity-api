@@ -3,8 +3,8 @@ from typing import List
 from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
-from app.log import log
-from app.models.clients import POLICY_TYPES, Resource
+from app.models.policies import PolicyType
+from app.models.resources import Resource
 
 router = APIRouter(
     prefix="/{client_id}/resources",
@@ -31,7 +31,6 @@ def register_resources(client_id: str, resources: List[Resource]):
                 "name": f'{resource_name}_role_policy',
                 "roles": [{"id": p} for p in permissions.role]
             }
-            log.info("pol " + str(policy))
             policy_response = keycloak.register_role_policy(policy, client_id)
             policy_list.append(policy_response["name"])
         if permissions.user:
@@ -59,7 +58,7 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
     # delete policies
     client_policies = keycloak.get_client_authz_policies(client_id)
     for policy in client_policies:
-        for policy_type in POLICY_TYPES:
+        for policy_type in [e.value for e in PolicyType]:
             if policy['name'] == f'{resource_name}_{policy_type}_policy':
                 keycloak.delete_policy(policy['id'], client_id)
     # delete permissions

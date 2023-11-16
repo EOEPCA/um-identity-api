@@ -11,7 +11,6 @@ from identityutils.configuration import load_configuration
 from app.error_handling import exception_handler
 from app.routers import clients, health, policies, resources, clients_permissions, clients_resources, clients_policies
 
-
 config: Mapping[str, str] = (
     load_configuration(os.path.join(os.path.dirname(__file__), "../config.ini"))
 )
@@ -44,7 +43,6 @@ async def docs_redirect():
 
 
 def main() -> None:
-    """Entrypoint to invoke when this module is invoked on the remote server."""
     uvicorn.run("main:app", host="0.0.0.0")
 
 
