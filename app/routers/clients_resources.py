@@ -25,6 +25,7 @@ def register_resources(client_id: str, resources: List[Resource]):
                     default_resource = client_resource
             default_resource["scopes"] = ["access"]
             update_resource(client_id=client_id,resource_id=default_resource['_id'], resource=default_resource)
+            response_list.append(default_resource)
             permission_payload = {
                 "type": "resource",
                 "name": f'{resource_name} Permission',
@@ -51,7 +52,6 @@ def register_resources(client_id: str, resources: List[Resource]):
                     "name": f'{resource_name}_role_policy',
                     "roles": [{"id": p} for p in permissions.role]
                 }
-                log.info("pol " + str(policy))
                 policy_response = keycloak.register_role_policy(policy, client_id)
                 policy_list.append(policy_response["name"])
             if permissions.user:
