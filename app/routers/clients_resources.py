@@ -1,8 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.keycloak_client import keycloak
+from app.log import logger
 from app.models.policies import PolicyType
 from app.models.resources import Resource
 from app.routers.resources import get_resources
@@ -20,11 +21,24 @@ def register_resources(client_id: str, resources: List[Resource]):
         if resource.name.lower() == "default resource":
             resource_name = resource.name
             client_resources = get_resources(client_id)
+            default_resource = None
             for client_resource in client_resources:
                 if client_resource["name"].lower() == "default resource":
                     default_resource = client_resource
-            default_resource["scopes"] = ["access"]
-            update_resource(client_id=client_id,resource_id=default_resource['_id'], resource=default_resource)
+            if default_resource:
+                # update default resource
+                default_resource["scopes"] = resource.scopes
+                update_resource(client_id=client_id, resource_id=default_resource['_id'], resource=default_resource)
+                response_list.append(default_resource)
+            else:
+                # create default resource
+                res = {
+                    "name": resource_name,
+                    "uris": resource.uris,
+                    "scopes": resource.scopes,
+                }
+                response_resource = keycloak.register_resource(res, client_id)
+                response_list.append(response_resource)
             permission_payload = {
                 "type": "resource",
                 "name": f'{resource_name} Permission',
@@ -51,7 +65,6 @@ def register_resources(client_id: str, resources: List[Resource]):
                     "name": f'{resource_name}_role_policy',
                     "roles": [{"id": p} for p in permissions.role]
                 }
-                log.info("pol " + str(policy))
                 policy_response = keycloak.register_role_policy(policy, client_id)
                 policy_list.append(policy_response["name"])
             if permissions.user:
