@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.keycloak_client import keycloak
 from app.models.policies import PolicyType
 from app.models.resources import Resource
+from app.routers.resources import get_resources
 
 router = APIRouter(
     prefix="/{client_id}/resources",
@@ -16,40 +17,60 @@ router = APIRouter(
 def register_resources(client_id: str, resources: List[Resource]):
     response_list = []
     for resource in resources:
-        resource_name = resource.name.replace(" ", "_")
-        res = {
-            "name": resource_name,
-            "uris": resource.uris,
-            "scopes": resource.scopes,
-        }
-        response_resource = keycloak.register_resource(res, client_id)
-        response_list.append(response_resource)
-        permissions = resource.permissions
-        policy_list = []
-        if permissions.role:
-            policy = {
-                "name": f'{resource_name}_role_policy',
-                "roles": [{"id": p} for p in permissions.role]
+        if resource.name.lower() == "default resource":
+            resource_name = resource.name
+            client_resources = get_resources(client_id)
+            for client_resource in client_resources:
+                if client_resource["name"].lower() == "default resource":
+                    default_resource = client_resource
+            default_resource["scopes"] = ["access"]
+            update_resource(client_id=client_id,resource_id=default_resource['_id'], resource=default_resource)
+            permission_payload = {
+                "type": "resource",
+                "name": f'{resource_name} Permission',
+                "decisionStrategy": "UNANIMOUS",
+                "resources": [
+                    resource_name
+                ],
+                "policies": ["Default Policy"]
             }
-            policy_response = keycloak.register_role_policy(policy, client_id)
-            policy_list.append(policy_response["name"])
-        if permissions.user:
-            policy = {
-                "name": f'{resource_name}_user_policy',
-                "users": permissions.user
+            keycloak.create_client_authz_resource_based_permission(client_id, permission_payload)
+        else:
+            resource_name = resource.name.replace(" ", "_")
+            res = {
+                "name": resource_name,
+                "uris": resource.uris,
+                "scopes": resource.scopes,
             }
-            policy_response = keycloak.register_user_policy(policy, client_id)
-            policy_list.append(policy_response["name"])
-        permission_payload = {
-            "type": "resource",
-            "name": f'{resource_name}_permission',
-            "decisionStrategy": resource.decisionStrategy,
-            "resources": [
-                resource_name
-            ],
-            "policies": policy_list
-        }
-        keycloak.create_client_authz_resource_based_permission(client_id, permission_payload)
+            response_resource = keycloak.register_resource(res, client_id)
+            response_list.append(response_resource)
+            permissions = resource.permissions
+            policy_list = []
+            if permissions.role:
+                policy = {
+                    "name": f'{resource_name}_role_policy',
+                    "roles": [{"id": p} for p in permissions.role]
+                }
+                log.info("pol " + str(policy))
+                policy_response = keycloak.register_role_policy(policy, client_id)
+                policy_list.append(policy_response["name"])
+            if permissions.user:
+                policy = {
+                    "name": f'{resource_name}_user_policy',
+                    "users": permissions.user
+                }
+                policy_response = keycloak.register_user_policy(policy, client_id)
+                policy_list.append(policy_response["name"])
+            permission_payload = {
+                "type": "resource",
+                "name": f'{resource_name}_permission',
+                "decisionStrategy": resource.decisionStrategy,
+                "resources": [
+                    resource_name
+                ],
+                "policies": policy_list
+            }
+            keycloak.create_client_authz_resource_based_permission(client_id, permission_payload)
     return response_list
 
 
