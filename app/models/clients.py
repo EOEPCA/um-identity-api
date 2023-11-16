@@ -70,135 +70,135 @@ class Client(APIBaseModel):
 
 
 class ResourceBasedPermission(APIBaseModel):
-    logic: Logic
-    decisionStrategy: DecisionStrategy
-    name: str
-    resources: List[str]
-    policies: List[str]
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Resource based permission name")
+    resources: List[str] = Field(description="Resource based permission resources")
+    policies: List[str] = Field(description="Resource based permission policies")
 
 
 class ClientPolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    clients: List[str]
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Client policy name")
+    clients: List[str] = Field(description="Client policy clients")
+    description: Optional[str] = Field(description="Client policy description")
 
 
 class AggregatedPolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    policies: List[str]
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Aggregated Policy name")
+    policies: List[str] = Field(description="Aggregated Policy policies")
+    description: Optional[str] = Field(description="Aggregated Policy description")
 
 
 class ClientScope(APIBaseModel):
-    id: str
+    id: str = Field(description="Client scope id")
 
 
 class ScopePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    clientScopes: List[ClientScope]
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Scope policy name")
+    clientScopes: List[ClientScope] = Field(description="Scope policy client scopes")
+    description: Optional[str] = Field(description="Scope policy description")
 
 
 class Group(APIBaseModel):
-    id: str
-    path: str
+    id: str = Field(description="Group id")
+    path: str = Field(description="Group path")
 
 
 class GroupPolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    groups: List[Group]
-    groupsClaim: str = ""
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Group policy name")
+    groups: List[Group] = Field(description="Group policy groups")
+    groupsClaim: Optional[str] = Field(description="Group policy groups claim")
+    description: Optional[str] = Field(description="Group policy description")
 
 
 class RegexPolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    pattern: str
-    targetClaim: str = ""
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Regex policy name")
+    pattern: str = Field(description="Regex policy regex pattern")
+    targetClaim: Optional[str] = Field(description="Regex policy target claim")
+    description: Optional[str] = Field(description="Regex policy description")
 
 
 class Role(APIBaseModel):
-    id: str
+    id: str = Field(description="Role id")
 
 
 class RolePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    roles: List[Role]
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Role policy name")
+    roles: List[Role] = Field(description="Role policy roles")
+    description: Optional[str] = Field(description="Role policy description")
 
 
 class RelativeTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    notAfter: str
-    notBefore: str
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Relative time policy name")
+    notAfter: str = Field(description="Relative time policy end date")
+    notBefore: str = Field(description="Relative time policy start date")
+    description: Optional[str] = Field(description="Relative time policy description")
 
 
 class DayMonthTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    dayMonth: PositiveInt
-    dayMonthEnd: PositiveInt
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Day month time policy name")
+    dayMonth: PositiveInt = Field(description="Day month time policy day month start")
+    dayMonthEnd: PositiveInt = Field(description="Day month time policy day month end")
+    description: Optional[str] = Field(description="Day month time policy description")
 
 
 class MonthTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    month: PositiveInt
-    monthEnd: PositiveInt
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Month time policy name")
+    month: PositiveInt = Field(description="Month time policy month start")
+    monthEnd: PositiveInt = Field(description="Month time policy month end")
+    description: Optional[str] = Field(description="Month time policy description")
 
 
 class YearTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    year: PositiveInt
-    yearEnd: PositiveInt
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Year time policy name")
+    year: PositiveInt = Field(description="Year time policy year start")
+    yearEnd: PositiveInt = Field(description="Year time policy year end")
+    description: Optional[str] = Field(description="Year time policy description")
 
 
 class HourTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    hour: PositiveInt
-    hourEnd: PositiveInt
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Hour time policy name")
+    hour: PositiveInt = Field(description="Hour time policy hour start")
+    hourEnd: PositiveInt = Field(description="Hour time policy hour end")
+    description: Optional[str] = Field(description="Hour time policy description")
 
 
 class MinuteTimePolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    minute: PositiveInt
-    minuteEnd: PositiveInt
-    description: str = ""
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="Minute time policy name")
+    minute: PositiveInt = Field(description="Minute time policy minute start")
+    minuteEnd: PositiveInt = Field(description="Minute time policy minute end")
+    description: Optional[str] = Field(description="Minute time policy description")
 
 
 class UserPolicy(APIBaseModel):
-    logic: Logic = Logic.POSITIVE
-    decisionStrategy: DecisionStrategy = DecisionStrategy.UNANIMOUS.value
-    name: str
-    users: List[str]
+    logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE") 
+    decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value, description="Decision strategy to decide how to apply permissions")
+    name: str = Field(description="User policy name")
+    users: List[str] = Field(description="User policy users list")
 
 
 class PolicyType(Enum):
