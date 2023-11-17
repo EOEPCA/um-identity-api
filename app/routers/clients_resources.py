@@ -14,21 +14,11 @@ router = APIRouter(
 )
 
 
-def __add_policy(client_id, policy_name, policy_response, policy_list):
-    if 'error' in policy_response and 'already exists' in policy_response['error']:
-        policies = list(filter(lambda p: p["name"] == policy_name, keycloak.get_client_authz_policies(client_id)))
-        if not len(policies):
-            raise HTTPException(status_code=400, detail="Policy " + policy_name + " not found")
-        policy_list.append(policies[0])
-    else:
-        policy_list.append(policy_response["name"])
-
 @router.post("")
 def register_resources(client_id: str, resources: List[Resource]):
     response_list = []
     for resource in resources:
         if resource.name.lower() == "default resource":
-            resource_name = resource.name
             client_resources = get_resources(client_id)
             default_resource = None
             for client_resource in client_resources:
@@ -42,7 +32,7 @@ def register_resources(client_id: str, resources: List[Resource]):
             else:
                 # create default resource
                 res = {
-                    "name": resource_name,
+                    "name": resource.name,
                     "uris": resource.uris,
                     "scopes": resource.scopes,
                 }
@@ -50,18 +40,17 @@ def register_resources(client_id: str, resources: List[Resource]):
                 response_list.append(response_resource)
             permission_payload = {
                 "type": "resource",
-                "name": f'{resource_name} Permission',
+                "name": f'{resource.name} Permission',
                 "decisionStrategy": "UNANIMOUS",
                 "resources": [
-                    resource_name
+                    resource.name
                 ],
                 "policies": ["Default Policy"]
             }
             keycloak.create_client_authz_resource_based_permission(client_id, permission_payload)
         else:
-            resource_name = resource.name.replace(" ", "_")
             res = {
-                "name": resource_name,
+                "name": resource.name,
                 "uris": resource.uris,
                 "scopes": resource.scopes,
             }
@@ -69,30 +58,29 @@ def register_resources(client_id: str, resources: List[Resource]):
             response_list.append(response_resource)
             permissions = resource.permissions
             policy_list = []
-
-
             if permissions.role:
-                name = f'{resource_name}_role_policy'
                 policy = {
-                    "name": name,
+                    "name": f'{resource.name} Role Policy',
                     "roles": [{"id": p} for p in permissions.role]
                 }
                 policy_response = keycloak.register_role_policy(policy, client_id)
-                __add_policy(client_id, name, policy_response, policy_list)
+                print(policy_response)
+                policy_list.append(policy_response["name"])
             if permissions.user:
-                name = f'{resource_name}_user_policy'
                 policy = {
-                    "name": f'{resource_name}_user_policy',
+                    "name": f'{resource.name} User Policy',
                     "users": permissions.user
                 }
                 policy_response = keycloak.register_user_policy(policy, client_id)
-                __add_policy(client_id, name, policy_response, policy_list)
+                print(policy_response)
+                policy_list.append(policy_response["name"])
+            print(policy_list)
             permission_payload = {
                 "type": "resource",
-                "name": f'{resource_name}_permission',
+                "name": f'{resource.name} Permission',
                 "decisionStrategy": resource.decisionStrategy,
                 "resources": [
-                    resource_name
+                    resource.name
                 ],
                 "policies": policy_list
             }
@@ -106,17 +94,17 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
     client_policies = keycloak.get_client_authz_policies(client_id)
     for policy in client_policies:
         for policy_type in [e.value for e in PolicyType]:
-            if policy['name'] == f'{resource_name}_{policy_type}_policy':
+            if policy['name'].lower() == f'{resource_name} {policy_type} policy'.lower():
                 keycloak.delete_policy(policy['id'], client_id)
     # delete permissions
     permissions = keycloak.get_client_resource_permissions(client_id)
     for permission in permissions:
-        if permission['name'] == f'{resource_name}_permission':
+        if permission['name'].lower() == f'{resource_name} permission'.lower():
             keycloak.delete_resource_permissions(client_id, permission['id'])
     # delete resources
     resources = keycloak.get_resources(client_id)
     for resource in resources:
-        if resource['name'] == resource_name:
+        if resource['name'].lower() == resource_name.lower():
             return keycloak.delete_resource(resource['_id'], client_id)
 
 
