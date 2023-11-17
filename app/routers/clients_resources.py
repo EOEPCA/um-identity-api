@@ -14,6 +14,15 @@ router = APIRouter(
 )
 
 
+def __add_policy(client_id, policy_name, policy_response, policy_list):
+    if 'error' in policy_response and 'already exists' in policy_response['error']:
+        policies = list(filter(lambda p: p["name"] == policy_name, keycloak.get_client_authz_policies(client_id)))
+        if not len(policies):
+            raise HTTPException(status_code=400, detail="Policy " + policy_name + " not found")
+        policy_list.append(policies[0])
+    else:
+        policy_list.append(policy_response["name"])
+
 @router.post("")
 def register_resources(client_id: str, resources: List[Resource]):
     response_list = []
@@ -60,20 +69,24 @@ def register_resources(client_id: str, resources: List[Resource]):
             response_list.append(response_resource)
             permissions = resource.permissions
             policy_list = []
+
+
             if permissions.role:
+                name = f'{resource_name}_role_policy'
                 policy = {
-                    "name": f'{resource_name}_role_policy',
+                    "name": name,
                     "roles": [{"id": p} for p in permissions.role]
                 }
                 policy_response = keycloak.register_role_policy(policy, client_id)
-                policy_list.append(policy_response["name"])
+                __add_policy(client_id, name, policy_response, policy_list)
             if permissions.user:
+                name = f'{resource_name}_user_policy'
                 policy = {
                     "name": f'{resource_name}_user_policy',
                     "users": permissions.user
                 }
                 policy_response = keycloak.register_user_policy(policy, client_id)
-                policy_list.append(policy_response["name"])
+                __add_policy(client_id, name, policy_response, policy_list)
             permission_payload = {
                 "type": "resource",
                 "name": f'{resource_name}_permission',
