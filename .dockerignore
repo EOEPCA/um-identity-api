@@ -2,4 +2,4 @@
 !app
 !requirements.*
 !config.ini
-!logging.yaml
+!um-identity-api.log
