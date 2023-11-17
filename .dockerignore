@@ -1,5 +1,4 @@
 *
 !app
 !requirements.*
-!config.ini
-!um-identity-api.log
+!.env
