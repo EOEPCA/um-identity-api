@@ -80,7 +80,7 @@ cd um-identity-api
 
 3. Execute
 
-   3.1 Run with docker compose
+   3.1 Run with docker compose (Identity API + Keycloak + Postgres)
     ```sh
     docker compose up -d --build
     ```

@@ -9,8 +9,8 @@ router = APIRouter(
 
 
 @router.get("")
-def get_resources():
-    return keycloak.get_resources()
+def get_resources(client_id: str):
+    return keycloak.get_resources(client_id)
 
 
 @router.get("/resources/{resource_id}")
