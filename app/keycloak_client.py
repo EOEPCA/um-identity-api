@@ -8,6 +8,7 @@ from app.log import logger
 
 settings = get_settings()
 
+
 def __create_keycloak_client():
     logger.info("Starting Keycloak client for: " + settings.auth_server_url + "/realms/" + settings.realm)
     return KeycloakClient(
