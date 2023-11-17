@@ -3,19 +3,18 @@ from keycloak import KeycloakConnectionError
 from retry.api import retry_call
 from urllib3.exceptions import NewConnectionError
 
-from app.configuration import config
+from app.configuration import get_settings
 from app.log import logger
 
+settings = get_settings()
 
 def __create_keycloak_client():
-    auth_server_url = config.get("Keycloak", "auth_server_url")
-    realm = config.get("Keycloak", "realm")
-    logger.info("Starting Keycloak client for: " + auth_server_url + "/realms/" + realm)
+    logger.info("Starting Keycloak client for: " + settings.auth_server_url + "/realms/" + settings.realm)
     return KeycloakClient(
-        server_url=auth_server_url,
-        realm=realm,
-        username=config.get("Keycloak", "admin_username"),
-        password=config.get("Keycloak", "admin_password")
+        server_url=settings.auth_server_url,
+        realm=settings.realm,
+        username=settings.admin_username,
+        password=settings.admin_password,
     )
 
 

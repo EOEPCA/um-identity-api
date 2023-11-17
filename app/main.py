@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
+from functools import lru_cache
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
-from app.configuration import config
+from app.configuration import get_settings
 from app.error_handling import exception_handler
 from app.routers import clients, health, policies, resources, clients_permissions, clients_resources, clients_policies
 
 
+settings = get_settings()
 app = FastAPI(
-    title=config.get("Swagger", "swagger_title"),
-    description=config.get("Swagger", "swagger_description"),
-    version=config.get("Swagger", "swagger_version"),
+    title="Identity API Documentation",
+    description="API endpoints",
+    version=settings.version,
 )
 app.add_middleware(
     CORSMiddleware,

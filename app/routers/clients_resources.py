@@ -1,9 +1,8 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
-from app.log import logger
 from app.models.policies import PolicyType
 from app.models.resources import Resource
 from app.routers.resources import get_resources

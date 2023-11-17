@@ -1,8 +1,25 @@
-import os
-from typing import Mapping
+from functools import lru_cache
+from typing import Any
 
-from identityutils.configuration import load_configuration
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-config: Mapping[str, str] = (
-    load_configuration(os.path.join(os.path.dirname(__file__), "../config.ini"))
-)
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
+    # Keycloak
+    auth_server_url: str = "http://localhost"
+    admin_username: str = "admin"
+    admin_password: str = "admin"
+    realm: str = "master"
+
+    # Swagger
+    version: str = "v1.0.0"
+
+    # Logging
+    log_level: str = "INFO"
+
+
+@lru_cache
+def get_settings():
+    return Settings()
