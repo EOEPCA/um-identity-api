@@ -35,7 +35,7 @@ def register_resources(client_id: str, resources: List[Resource]):
                     "uris": resource.uris,
                     "scopes": resource.scopes,
                 }
-                response_resource = keycloak.register_resource(res, client_id)
+                response_resource = keycloak.register_resource(client_id, res)
                 response_list.append(response_resource)
             permission_payload = {
                 "type": "resource",
@@ -53,7 +53,7 @@ def register_resources(client_id: str, resources: List[Resource]):
                 "uris": resource.uris,
                 "scopes": resource.scopes,
             }
-            response_resource = keycloak.register_resource(res, client_id)
+            response_resource = keycloak.register_resource(client_id, res)
             response_list.append(response_resource)
             permissions = resource.permissions
             policy_list = []
@@ -62,7 +62,7 @@ def register_resources(client_id: str, resources: List[Resource]):
                     "name": f'{resource.name} Role Policy',
                     "roles": [{"id": p} for p in permissions.role]
                 }
-                policy_response = keycloak.register_role_policy(policy, client_id)
+                policy_response = keycloak.register_role_policy(client_id, policy)
                 print(policy_response)
                 policy_list.append(policy_response["name"])
             if permissions.user:
@@ -70,7 +70,7 @@ def register_resources(client_id: str, resources: List[Resource]):
                     "name": f'{resource.name} User Policy',
                     "users": permissions.user
                 }
-                policy_response = keycloak.register_user_policy(policy, client_id)
+                policy_response = keycloak.register_user_policy(client_id, policy)
                 print(policy_response)
                 policy_list.append(policy_response["name"])
             print(policy_list)
@@ -94,7 +94,7 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
     for policy in client_policies:
         for policy_type in [e.value for e in PolicyType]:
             if policy['name'].lower() == f'{resource_name} {policy_type} policy'.lower():
-                keycloak.delete_policy(policy['id'], client_id)
+                keycloak.delete_policy(client_id, policy['id'])
     # delete permissions
     permissions = keycloak.get_client_resource_permissions(client_id)
     for permission in permissions:
@@ -104,14 +104,14 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
     resources = keycloak.get_resources(client_id)
     for resource in resources:
         if resource['name'].lower() == resource_name.lower():
-            return keycloak.delete_resource(resource['_id'], client_id)
+            return keycloak.delete_resource(client_id, resource['_id'])
 
 
 @router.put("/{resource_id}")
 def update_resource(client_id: str, resource_id: str, resource: Resource):
-    return keycloak.update_resource(resource_id, resource, client_id)
+    return keycloak.update_resource(client_id, resource_id, resource)
 
 
 @router.delete("/{resource_id}")
 def delete_resource(client_id: str, resource_id: str):
-    return keycloak.delete_resource(resource_id, client_id)
+    return keycloak.delete_resource(client_id, resource_id)
