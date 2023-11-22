@@ -61,4 +61,3 @@ env/
 
 .idea
 postgres
-!um-identity-api.log
