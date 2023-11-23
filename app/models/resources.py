@@ -16,7 +16,7 @@ class Resource(APIBaseModel):
     name: str = Field(description="Resource name")
     uris: List[str] = Field(description="Resource URIs")
     attributes: Optional[Any] = Field({}, description="Resource attributes")
-    scopes: Optional[List[str]] = Field(["access"], description="Resource scopes")
+    scopes: Optional[List[str]] = Field(["view"], description="Resource scopes")
     ownerManagedAccess: Optional[bool] = Field(False, description="Enable/Disable management by the resource owner")
     permissions: Optional[ResourcePermission] = Field(None, description="Resource permissions")
     decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value,
