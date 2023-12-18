@@ -31,16 +31,12 @@ class AggregatedPermission(APIBaseModel):
     description: Optional[str] = Field(description="Aggregated Policy description")
 
 
-class ClientScope(APIBaseModel):
-    id: str = Field(description="Client scope id")
-
-
 class ScopePermission(APIBaseModel):
     logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE")
     decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value,
                                                          description="Decision strategy to decide how to apply permissions")
     name: str = Field(description="Scope policy name")
-    clientScopes: List[ClientScope] = Field(description="Scope policy client scopes")
+    scopes: List[str] = Field(description="Scope policy client scopes")
     description: Optional[str] = Field(description="Scope policy description")
 
 
