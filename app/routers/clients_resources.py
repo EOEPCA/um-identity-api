@@ -110,7 +110,7 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
 
 @router.put("/{resource_id}")
 def update_resource(client_id: str, resource_id: str, resource: Resource):
-    return keycloak.update_resource(client_id, resource_id, resource)
+    return keycloak.update_resource(client_id, resource_id, resource.model_dump())
 
 
 @router.delete("/{resource_id}")

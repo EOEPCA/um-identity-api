@@ -13,6 +13,6 @@ def get_resources(client_id: str):
     return keycloak.get_resources(client_id)
 
 
-@router.get("/resources/{resource_id}")
-def get_resource(resource_id: str):
-    return keycloak.get_resource(resource_id)
+@router.get("/{resource_id}")
+def get_resource(resource_id: str, client_id: str, client_secret: str):
+    return keycloak.get_resource(client_id, client_secret, resource_id)
