@@ -26,5 +26,6 @@ def get_client_resource_permissions(client_id: str):
 
 @router.post("/resources")
 def create_client_authz_resource_based_permission(client_id: str, resource_based_permission: ResourceBasedPermission):
+    resource_based_permission = resource_based_permission.model_dump()
     resource_based_permission['type'] = 'resource'
     return keycloak.create_client_authz_resource_based_permission(client_id, resource_based_permission)
