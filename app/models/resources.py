@@ -21,3 +21,11 @@ class Resource(APIBaseModel):
     permissions: Optional[ResourcePermission] = Field(None, description="Resource permissions")
     decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value,
                                                          description="Decision strategy to decide how to apply permissions")
+
+class UpdateResource(APIBaseModel):
+    name: Optional[str] = Field(description="Resource name")
+    uris: Optional[List[str]] = Field(description="Resource URIs")
+    attributes: Optional[Any] = Field(description="Resource attributes")
+    scopes: Optional[List[str]] = Field(description="Resource scopes")
+    ownerManagedAccess: Optional[bool] = Field(description="Enable/Disable management by the resource owner")
+    displayName: Optional[str] = Field(description="Resource display description")

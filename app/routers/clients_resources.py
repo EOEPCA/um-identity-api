@@ -1,11 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
-from app.log import logger
 from app.models.policies import PolicyType
-from app.models.resources import Resource
+from app.models.resources import Resource, UpdateResource
 from app.routers.resources import get_resources
 
 router = APIRouter(
@@ -109,7 +108,7 @@ def delete_resource_and_policies(client_id: str, resource_name: str):
 
 
 @router.put("/{resource_id}")
-def update_resource(client_id: str, resource_id: str, resource: Resource):
+def update_resource(client_id: str, resource_id: str, resource: UpdateResource):
     return keycloak.update_resource(client_id, resource_id, resource.model_dump())
 
 
