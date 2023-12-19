@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.keycloak_client import keycloak
-from app.models.permissions import ResourceBasedPermission
+from app.models.permissions import ResourceBasedPermission, ManagementPermission
 
 router = APIRouter(
     prefix="/{client_id}/permissions",
@@ -17,6 +17,10 @@ def get_client_authz_permissions(client_id: str):
 @router.get("/management")
 def get_client_management_permissions(client_id: str):
     return keycloak.get_client_management_permissions(client_id)
+
+@router.put("/management")
+def get_client_management_permissions(client_id: str, managementPermission: ManagementPermission):
+    return keycloak.update_client_management_permissions(client_id, managementPermission.model_dump())
 
 
 @router.get("/resources")
