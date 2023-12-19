@@ -40,17 +40,12 @@ class ScopePermission(APIBaseModel):
     description: Optional[str] = Field(description="Scope policy description")
 
 
-class Group(APIBaseModel):
-    id: str = Field(description="Group id")
-    path: str = Field(description="Group path")
-
-
 class GroupPermission(APIBaseModel):
     logic: Optional[Logic] = Field(Logic.POSITIVE, description="Logic to apply, either POSITIVE or NEGATIVE")
     decisionStrategy: Optional[DecisionStrategy] = Field(DecisionStrategy.UNANIMOUS.value,
                                                          description="Decision strategy to decide how to apply permissions")
     name: str = Field(description="Group policy name")
-    groups: List[Group] = Field(description="Group policy groups")
+    groups: List[str] = Field(description="Group policy groups")
     groupsClaim: Optional[str] = Field(description="Group policy groups claim")
     description: Optional[str] = Field(description="Group policy description")
 
@@ -67,6 +62,7 @@ class RegexPermission(APIBaseModel):
 
 class Role(APIBaseModel):
     id: str = Field(description="Role id")
+    required: bool = Field(description="Required")
 
 
 class RolePermission(APIBaseModel):
@@ -144,6 +140,7 @@ class UserPermission(APIBaseModel):
                                                          description="Decision strategy to decide how to apply permissions")
     name: str = Field(description="User policy name")
     users: List[str] = Field(description="User policy users list")
+    description: Optional[str] = Field(description="User policy description")
 
 
 class ModifyClientPermission(ClientPermission):
@@ -205,3 +202,6 @@ class ResourceBasedPermission(APIBaseModel):
     name: str = Field(description="Resource based permission name")
     resources: List[str] = Field(description="Resource based permission resources")
     policies: List[str] = Field(description="Resource based permission policies")
+
+class ManagementPermission(APIBaseModel):
+    enabled: bool = Field(description="Management enabled/disabled")
